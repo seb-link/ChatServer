@@ -37,21 +37,28 @@ int init(void) {
 }
 
 void *getconn(void *data) {
-  t_data *socks;
+  if (data == NULL) {
+    fprintf(stderr, "Error: NULL data passed to getconn\n");
+    return (void *)EXIT_FAILURE;
+  }
 
-  socks = (t_data *) data; 
+  t_data *socks = (t_data *)data;
 
-  int new_sock= accept(server_fd, (struct sockaddr*)&address, &addrlen);
-  if (new_sock < 0)
-    return (NULL);
+  int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+  if (new_sock < 0) {
+    perror("accept");
+    return (void *)EXIT_FAILURE;
+  }
 
-  pthread_mutex_lock(socks->data_mutex);  
+  pthread_mutex_lock(socks->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
     if (socks->clients[i].u == false) {
       socks->clients[i].u = true;
-      socks->clients[i].sock = new_sock; 
+      socks->clients[i].sock = new_sock;
+      break;
     }
   }
   pthread_mutex_unlock(socks->data_mutex);
-  return (NULL);
-} 
+
+  return (void *)EXIT_SUCCESS;
+}
