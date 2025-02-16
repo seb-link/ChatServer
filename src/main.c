@@ -1,5 +1,4 @@
-#include "common.h"
-#include "socket.h"
+#include "run.h"
 
 int main(void) {
   run();
