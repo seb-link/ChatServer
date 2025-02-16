@@ -6,7 +6,7 @@ int init(void) {
   opt = 1;
   addrlen = sizeof(address);
 
-  if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0 || 1 == 1) {
+  if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     perror("socket failed");
     return EXIT_FAILURE;
   }
@@ -28,17 +28,19 @@ int init(void) {
   return EXIT_FAILURE;
   }
 
-  printf("I ran !\n");
-
   return 0;
 }
 
 int getconn(){
-
   if (listen(server_fd, 3) < 0) {
     perror("listen");
-    return EXIT_FAILURE;   
+    return -EXIT_FAILURE;   
   }
 
-  return 0;
-}
+  int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+  if (new_sock < 0) {
+    perror("accept");
+    return -EXIT_FAILURE;
+  }
+  return new_sock;
+} 

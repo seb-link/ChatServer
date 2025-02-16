@@ -8,5 +8,11 @@ void run(void) {
     return;
   }
   
+  int new_sock = getconn();
+  if (new_sock < 0) {
+    printf("FATAL : Cloud not get connections !\n");
+    return;
+  }
+  
   return;
 }
