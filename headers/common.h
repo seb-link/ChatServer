@@ -6,7 +6,10 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#define PORT 8080
+#define MAXCLIENT 10
+#define PORT      8080
+#define true      1
+#define false     0
 
 #endif
 

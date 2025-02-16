@@ -28,19 +28,30 @@ int init(void) {
   return EXIT_FAILURE;
   }
 
+  if (listen(server_fd, 3) < 0) {
+    perror("listen");
+    return EXIT_FAILURE;   
+  }
+
   return 0;
 }
 
-int getconn(){
-  if (listen(server_fd, 3) < 0) {
-    perror("listen");
-    return -EXIT_FAILURE;   
-  }
+void *getconn(void *data) {
+  t_data *socks;
 
-  int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-  if (new_sock < 0) {
-    perror("accept");
-    return -EXIT_FAILURE;
+  socks = (t_data *) data; 
+
+  int new_sock= accept(server_fd, (struct sockaddr*)&address, &addrlen);
+  if (new_sock < 0)
+    return (NULL);
+
+  pthread_mutex_lock(socks->data_mutex);  
+  for (int i = 0; i < MAXCLIENT; i++) {
+    if (socks->clients[i].u == false) {
+      socks->clients[i].u = true;
+      socks->clients[i].sock = new_sock; 
+    }
   }
-  return new_sock;
+  pthread_mutex_unlock(socks->data_mutex);
+  return (NULL);
 } 

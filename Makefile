@@ -1,2 +1,2 @@
 main :
-	gcc -g -Wall -o server ./src/*.c -I ./headers
+	gcc -g -Wno-unused-variable -Wall -o server ./src/*.c -I ./headers
