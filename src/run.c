@@ -32,7 +32,11 @@ void run(void) {
   printf("Got connection !\n");
   
   char* msg = malloc(sizeof(char) * BUFFSIZE);
+  while (1) {
   msg = getmsg(new_sock);
   printf("Client : %s\n",msg);  
+  free(msg);
+  }
+
   return;
 }
