@@ -5,9 +5,11 @@
 #include <sys/socket.h>
 #include <pthread.h>
 
-static int server_fd;
-static int opt;
-static struct sockaddr_in address;
+#define BUFFSIZE 1024
+
+static int       server_fd;
+static int       opt;
+static struct    sockaddr_in address;
 static socklen_t addrlen;
 
 typedef struct {
@@ -20,7 +22,9 @@ typedef struct s_data {
   Client clients[MAXCLIENT];
 } t_data;
 
-int init(void);
-void *getconn(void* data);
+int   init           (void);
+void* getconn        (void* data);
+int   legacy_getconn (void);
+char* getmsg         (int sock);
 #endif
 

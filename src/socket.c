@@ -36,6 +36,12 @@ int init(void) {
   return 0;
 }
 
+int legacy_getconn(void) {
+  int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+  return new_sock;
+}
+
+// not implemented
 void *getconn(void *data) {
   if (data == NULL) {
     fprintf(stderr, "Error: NULL data passed to getconn\n");
@@ -61,4 +67,10 @@ void *getconn(void *data) {
   pthread_mutex_unlock(socks->data_mutex);
 
   return (void *)EXIT_SUCCESS;
+}
+
+char *getmsg(int sock) {
+  char *msg = malloc(sizeof(char) * BUFFSIZE);
+  read(sock, msg, BUFFSIZE - 1);
+  return msg;
 }

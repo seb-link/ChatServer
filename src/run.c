@@ -3,6 +3,7 @@
 #include "run.h"
 
 void run(void) {
+  /*
   Client clients[MAXCLIENT];
   Client null;
   null.u = false;
@@ -11,18 +12,27 @@ void run(void) {
   for(int i = 0; i< MAXCLIENT; i++) {
     clients[i] = null;
   }
+  */
 
   if (init() != 0) {
     printf("FATAL : Cloud not initialize socket\n");
     return;
   }
+
+  printf("Listening of port : %d...\n",PORT);
   // TODO : Add multi-threading system to handle multiple clients.
-  int new_sock = getconn();
+  // int new_sock = getconn();
+  int new_sock = legacy_getconn();
   if (new_sock < 0) {
     perror("accept");
     printf("FATAL : Cloud not get connections !\n");
     return;
   }
+
+  printf("Got connection !\n");
   
+  char* msg = malloc(sizeof(char) * BUFFSIZE);
+  msg = getmsg(new_sock);
+  printf("Client : %s\n",msg);  
   return;
 }
