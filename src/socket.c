@@ -56,15 +56,21 @@ void *getconn(void *data) {
     return (void *)EXIT_FAILURE;
   }
 
+  int alloc = 0;
   pthread_mutex_lock(socks->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
     if (socks->clients[i].u == false) {
       socks->clients[i].u = true;
       socks->clients[i].sock = new_sock;
+      alloc = 1;
       break;
     }
   }
   pthread_mutex_unlock(socks->data_mutex);
+
+  if (alloc == 0) {
+    close(new_sock);
+  }
 
   return (void *)EXIT_SUCCESS;
 }
