@@ -33,9 +33,9 @@ void run(void) {
   
   char* msg = malloc(sizeof(char) * BUFFSIZE);
   while (1) {
-  msg = getmsg(new_sock);
-  printf("Client : %s\n",msg);  
-  free(msg);
+    msg = getmsg(new_sock);
+    printf("Client : %s\n",msg);  
+    free(msg);
   }
 
   return;
