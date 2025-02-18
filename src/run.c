@@ -4,7 +4,7 @@
 
 void run(void) {
   bool running = true;
-  /*
+  /* Not implemented
   Client clients[MAXCLIENT];
   Client null;
   null.u = false;
