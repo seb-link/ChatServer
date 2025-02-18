@@ -3,6 +3,7 @@
 #include "run.h"
 
 void run(void) {
+  bool running = true;
   /*
   Client clients[MAXCLIENT];
   Client null;
@@ -32,8 +33,14 @@ void run(void) {
   printf("Got connection !\n");
   
   char* msg = malloc(sizeof(char) * BUFFSIZE);
-  while (1) {
+  while (running) {
     msg = getmsg(new_sock);
+    if (strcmp(msg,EXITMSG)) {
+      free(msg);
+      close(new_sock);
+      printf("Client Exited.\n");
+      break;
+    }
     printf("Client : %s\n",msg);  
     free(msg);
   }

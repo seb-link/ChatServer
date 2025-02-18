@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
 
+#define EXITMSG "/exit"
 #define MAXCLIENT 10
 #define PORT      8080
-#define true      1
-#define false     0
 
 #endif
 

@@ -14,7 +14,7 @@ static socklen_t addrlen;
 
 typedef struct {
   int sock;
-  int u;
+  bool u;
 } Client;
 
 typedef struct s_data {
