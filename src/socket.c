@@ -76,7 +76,17 @@ void *getconn(void *data) {
 }
 
 char *getmsg(int sock) {
-  char *msg = malloc(sizeof(char) * BUFFSIZE);
-  read(sock, msg, BUFFSIZE - 1);
+  char *msg = malloc(BUFFSIZE);
+  if (!msg) {
+    perror("malloc");
+    return NULL;
+  }
+  ssize_t s = read(sock, msg, BUFFSIZE - 1);
+  if (s < 0) {
+    perror("read");
+    free(msg);
+    return NULL;
+  }
+  msg[s] = '\0';
   return msg;
 }
