@@ -25,7 +25,6 @@ typedef struct s_data {
 
 int   init           (void);
 void* getconn        (void* data);
-int   legacy_getconn (void);
 char* getmsg         (int sock);
 #endif
 
