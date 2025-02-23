@@ -41,6 +41,10 @@ void run(void) {
     pthread_join(threads[i], 0);
   }
 
+  pthread_mutex_destroy(&data_mutex);
+  pthread_mutex_destroy(&server_mutex);
+  free(Pclients);
+
   return;
 }
 
@@ -50,12 +54,12 @@ void* threadTarget(void* data) {
   bool running = 1;
   data = (t_data*) data;
   while (true) {
-    if (exitcode != 0) break;
     int new_sock = (int) getconn(data);
     if (new_sock < 0) {
       perror("accept");
       printf("FATAL : Cloud not get connections !\n");
       exitcode = 1;
+      break;
     }
 
     printf("Got connection !\n");
