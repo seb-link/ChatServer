@@ -53,6 +53,7 @@ void *getconn(void *data) {
   }
 
   bool alloc = false;
+  if (socks->reqshut == true) pthread_exit(0);
   pthread_mutex_lock(socks->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
     if (socks->clients[i]->u == false) {

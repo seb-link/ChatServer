@@ -30,4 +30,4 @@ char *getmsg(int sock) {
   msg[s] = '\0';
   return msg;
 }
-  
+

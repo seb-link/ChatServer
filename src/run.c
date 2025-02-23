@@ -1,9 +1,11 @@
 #include "common.h"
+#include "command.h"
 #include "socket.h"
 #include "run.h"
 #include "client.h"
 
 void* threadTarget(void* data);
+void quit(t_data* data);
 
 void run(void) {
   bool running = true;
@@ -41,9 +43,7 @@ void run(void) {
     pthread_join(threads[i], 0);
   }
 
-  pthread_mutex_destroy(&data_mutex);
-  pthread_mutex_destroy(&server_mutex);
-  free(Pclients);
+  quit(&data);
 
   return;
 }
@@ -66,20 +66,53 @@ void* threadTarget(void* data) {
     char* msg = malloc(sizeof(char) * BUFFSIZE);
     while (running) {
       msg = getmsg(new_sock);
-      if (strcmp(msg,EXITMSG)) {
-        free(msg);
-        close(new_sock);
-        printf("Client Exited.\n");
-        break;
-      }
-
       if (msg != 0) {
         printf("Client : %s\n",msg);
         broadcast(data, msg);
+        if (strcmp(&msg[0],"/")) {
+          switch(parcmd(&msg)) {
+            case CLI_EXIT:
+              free(msg);
+              close(new_sock);
+              printf("Client Exited.\n");
+              return 0;
+              break;
+            case QUIT:
+              quit(data);
+            default :
+              break;
+          }
+        }
       }  
       free(msg);
     }
     close(new_sock);
   }
   return (void*) exitcode;
+}
+
+int in(char* arr[], ssize_t size, const char* target) {
+  for (ssize_t i = 0; i < size; i++) {
+    if (arr[i] != NULL && strcmp(arr[i], target) == 0) {
+      return 1; 
+    }
+  }
+  return 0;
+}
+
+void quit(t_data* data) {
+  data->reqshut = true;
+  pthread_mutex_lock(data->data_mutex);
+  for (int i = 0; i< MAXCLIENT; i++) {
+    if (data->clients[i]->u == true) {
+      close(data->clients[i]->sock);
+    }
+    // Not technically required but idc
+    data->clients[i]->u    = false; 
+    data->clients[i]->sock = 0;
+  }
+  pthread_mutex_unlock(data->data_mutex);
+  pthread_mutex_destroy(data->data_mutex);
+  pthread_mutex_destroy(data->server_mutex);
+  exit(0);
 }
