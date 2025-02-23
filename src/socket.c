@@ -12,7 +12,7 @@ int init(void) {
   }
 
   if (setsockopt(server_fd, SOL_SOCKET,
-                SO_REUSEADDR | SO_REUSEPORT, &opt,
+                SO_REUSEADDR, &opt,
                 sizeof(opt))) {
     perror("setsockopt");
     return EXIT_FAILURE;
@@ -36,12 +36,6 @@ int init(void) {
   return 0;
 }
 
-int legacy_getconn(void) {
-  int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-  return new_sock;
-}
-
-// not implemented
 void *getconn(void *data) {
   if (data == NULL) {
     fprintf(stderr, "Error: NULL data passed to getconn\n");
@@ -49,8 +43,10 @@ void *getconn(void *data) {
   }
 
   t_data *socks = (t_data *)data;
-
+  
+  pthread_mutex_lock(socks->server_mutex);
   int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+  pthread_mutex_unlock(socks->server_mutex);
   if (new_sock < 0) {
     perror("accept");
     return (void *)EXIT_FAILURE;
@@ -59,9 +55,9 @@ void *getconn(void *data) {
   bool alloc = false;
   pthread_mutex_lock(socks->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
-    if (socks->clients[i].u == false) {
-      socks->clients[i].u = true;
-      socks->clients[i].sock = new_sock;
+    if (socks->clients[i]->u == false) {
+      socks->clients[i]->u = true;
+      socks->clients[i]->sock = new_sock;
       alloc = true;
       break;
     }

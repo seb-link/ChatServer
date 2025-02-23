@@ -7,10 +7,10 @@
 
 #define BUFFSIZE 1024
 
-static int       server_fd;
-static int       opt;
-static struct    sockaddr_in address;
-static socklen_t addrlen;
+static int                server_fd;
+static int                opt;
+static struct sockaddr_in address;
+static socklen_t          addrlen;
 
 typedef struct {
   int sock;
@@ -19,7 +19,8 @@ typedef struct {
 
 typedef struct s_data {
   pthread_mutex_t* data_mutex;
-  Client clients[MAXCLIENT];
+  pthread_mutex_t* server_mutex;
+  Client (*clients)[MAXCLIENT];
 } t_data;
 
 int   init           (void);

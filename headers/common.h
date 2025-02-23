@@ -8,8 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#define EXITMSG "/exit"
-#define MAXCLIENT 10
+#define EXITMSG   "/exit"
+#define MAXCLIENT 2
 #define PORT      8080
 
 #endif
