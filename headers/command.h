@@ -2,9 +2,9 @@
 #define COMMAND_H
 
 
-#define CMD_NUM 1 // Number of commands
+#define CMD_NUM 2 // Number of commands
 
-static char *commands[CMD_NUM] = {"/exit"};
+static char *commands[CMD_NUM] = {"/exit","/stop"};
 
 #define QUIT           99 // Close the program
 #define CLI_EXIT       1  // Client exited
