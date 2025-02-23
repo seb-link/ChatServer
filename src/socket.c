@@ -70,19 +70,3 @@ void *getconn(void *data) {
 
   return (void *)EXIT_SUCCESS;
 }
-
-char *getmsg(int sock) {
-  char *msg = malloc(BUFFSIZE);
-  if (!msg) {
-    perror("malloc");
-    return NULL;
-  }
-  ssize_t s = read(sock, msg, BUFFSIZE - 1);
-  if (s < 0) {
-    perror("read");
-    free(msg);
-    return NULL;
-  }
-  msg[s] = '\0';
-  return msg;
-}

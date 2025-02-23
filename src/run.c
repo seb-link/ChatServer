@@ -1,6 +1,7 @@
 #include "common.h"
 #include "socket.h"
 #include "run.h"
+#include "client.h"
 
 void* threadTarget(void* data);
 
@@ -22,7 +23,7 @@ void run(void) {
   data.data_mutex = &data_mutex;
   data.server_mutex = &server_mutex;
   
-  data.clients = &Pclients;
+  data.clients = Pclients;
 
   if (init() != 0) {
     printf("FATAL : Cloud not initialize socket\n");
@@ -58,7 +59,6 @@ void* threadTarget(void* data) {
     }
 
     printf("Got connection !\n");
-    /*
     char* msg = malloc(sizeof(char) * BUFFSIZE);
     while (running) {
       msg = getmsg(new_sock);
@@ -68,9 +68,13 @@ void* threadTarget(void* data) {
         printf("Client Exited.\n");
         break;
       }
-      printf("Client : %s\n",msg);  
+
+      if (msg != 0) {
+        printf("Client : %s\n",msg);
+        broadcast(data, msg);
+      }  
       free(msg);
-    */
+    }
     close(new_sock);
   }
   return (void*) exitcode;
