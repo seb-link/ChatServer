@@ -49,21 +49,41 @@ void run(void) {
 }
 
 
-void* threadTarget(void* data) {
+void* threadTarget(void* sdata) {
   int exitcode = 0;
   bool running = 1;
-  data = (t_data*) data;
+  t_data* data;
+  data = (t_data*) sdata;
   while (true) {
     int new_sock = (int) getconn(data);
     if (new_sock < 0) {
       perror("accept");
       printf("FATAL : Cloud not get connections !\n");
-      exitcode = 1;
-      break;
+      quit(data);
     }
 
     printf("Got connection !\n");
     char* msg = malloc(sizeof(char) * BUFFSIZE);
+    if (!msg) {
+      perror("malloc");
+      quit(data);
+    }
+    char *username = malloc(MAXNAMSIZE);
+    username = getmsg(server_fd); // New client username
+    
+    if (strcmp(username, "\n")) {
+      printf("No username provided dropping connections...");
+      close(new_sock); 
+      continue; 
+    }
+    printf("Username is : \"%x\"\n",username);
+    for (int i =0; i < MAXCLIENT; i++) {
+      if (data->clients[i]->sock == new_sock) { 
+	data->clients[i]->username = username;
+	break;
+      }
+    }
+    printf("New client : %s\n",username);
     while (running) {
       msg = getmsg(new_sock);
       if (msg != 0) {
@@ -83,7 +103,8 @@ void* threadTarget(void* data) {
               break;
           }
         }
-      }  
+      }
+      printf("No message received\n");
       free(msg);
     }
     close(new_sock);
