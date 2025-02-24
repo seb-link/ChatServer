@@ -19,7 +19,7 @@ char *getmsg(int sock) {
       perror("malloc");
       return NULL;
   }
-  ssize_t s = recv(sock, msg, BUFFSIZE - 1,MSG_DONTWAIT);
+  ssize_t s = recv(sock, msg, BUFFSIZE - 1,0);
   if (s < 0) {
       perror("read");
       free(msg);

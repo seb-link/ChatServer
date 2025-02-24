@@ -49,7 +49,7 @@ void *getconn(void *data) {
   pthread_mutex_unlock(socks->server_mutex);
   if (new_sock < 0) {
     perror("accept");
-    return (void *)EXIT_FAILURE;
+    return (void *)(intptr_t) -EXIT_FAILURE;
   }
 
   bool alloc = false;
@@ -69,5 +69,5 @@ void *getconn(void *data) {
     close(new_sock);
   }
 
-  return (void *)EXIT_SUCCESS;
+  return (void *)(intptr_t)new_sock;
 }

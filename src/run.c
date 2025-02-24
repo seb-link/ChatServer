@@ -55,7 +55,7 @@ void* threadTarget(void* sdata) {
   t_data* data;
   data = (t_data*) sdata;
   while (true) {
-    int new_sock = (int) getconn(data);
+    int new_sock = (int) (intptr_t) getconn(data);
     if (new_sock < 0) {
       perror("accept");
       printf("FATAL : Cloud not get connections !\n");
