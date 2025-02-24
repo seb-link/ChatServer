@@ -8,9 +8,7 @@ void* threadTarget(void* data);
 void quit(t_data* data);
 char* trim_whitespace(char* str);
 
-void run(void) {
-  bool running = true;
-  
+void run(void) {  
   t_data data;
   pthread_mutex_t data_mutex;
   pthread_mutex_t server_mutex;
