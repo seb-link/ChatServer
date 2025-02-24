@@ -2,6 +2,16 @@
 #include "client.h"
 
 
+void removeClient(t_data *data, int sock) {
+  pthread_mutex_lock(data->data_mutex);
+  for (int i = 0; i < MAXCLIENT; i++) {
+    if (data->clients[i]->sock == sock && data->clients[i]->u == true) {
+      data->clients[i]->u = false;
+    }
+  }
+  pthread_mutex_unlock(data->data_mutex);
+}
+
 void broadcast(t_data *data, char* msg) {
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i<MAXCLIENT; i++) {

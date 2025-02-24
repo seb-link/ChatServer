@@ -4,7 +4,9 @@
 #include "socket.h"
 
 #define MAXNAMSIZE 20
-void  broadcast (t_data *data, char* msg);
-char* getmsg    (int sock);
+
+char* getmsg      (int sock);
+void  broadcast   (t_data *data, char* msg);
+void  removeClient(t_data *data, int sock) ;
 
 #endif

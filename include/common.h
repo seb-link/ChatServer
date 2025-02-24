@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define EXITMSG   "/exit"
 #define MAXCLIENT 2

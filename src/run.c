@@ -6,6 +6,7 @@
 
 void* threadTarget(void* data);
 void quit(t_data* data);
+char* trim_whitespace(char* str);
 
 void run(void) {
   bool running = true;
@@ -70,20 +71,47 @@ void* threadTarget(void* sdata) {
     }
     char *username = malloc(MAXNAMSIZE);
     username = getmsg(server_fd); // New client username
-    
-    if (strcmp(username, "\n")) {
-      printf("No username provided dropping connections...");
-      close(new_sock); 
-      continue; 
+    if(!username) {
+      printf("Connection closed before username received\n");
+      close(new_sock);
+      removeClient(data, new_sock);
+      continue;
     }
-    printf("Username is : \"%x\"\n",username);
-    for (int i =0; i < MAXCLIENT; i++) {
-      if (data->clients[i]->sock == new_sock) { 
-	data->clients[i]->username = username;
-	break;
+    char* clean_name = trim_whitespace(username);
+    if(strlen(clean_name) == 0) {
+      printf("Empty username received\n");
+      send(new_sock, "ERROR: Username cannot be empty\n", BUFFSIZE, 0);
+      free(username);
+      close(new_sock);
+      removeClient(data, new_sock);
+      continue;
+    }
+    bool duplicate = false;
+    pthread_mutex_lock(data->data_mutex);
+    for(int i = 0; i < MAXCLIENT; i++) {
+      if(data->clients[i]->u && strcmp(data->clients[i]->username, clean_name) == 0) {
+        duplicate = true;
+        break;
       }
     }
-    printf("New client : %s\n",username);
+    pthread_mutex_unlock(data->data_mutex);
+
+    if (duplicate) {
+      send(new_sock, "ERROR: Username already taken\n", 30, 0);
+      free(username);
+      close(new_sock);
+      removeClient(data, new_sock);
+      continue;
+    }
+    for(int i = 0; i < MAXCLIENT; i++) {
+      if(data->clients[i]->sock == new_sock) {
+        data->clients[i]->username = strdup(clean_name);
+        break;
+      }
+    }
+    pthread_mutex_unlock(data->data_mutex);
+
+    printf("New client : %s\n",clean_name);
     while (running) {
       msg = getmsg(new_sock);
       if (msg != 0) {
@@ -109,7 +137,7 @@ void* threadTarget(void* sdata) {
     }
     close(new_sock);
   }
-  return (void*) exitcode;
+  return (void*) (intptr_t) exitcode;
 }
 
 int in(char* arr[], ssize_t size, const char* target) {
@@ -136,4 +164,14 @@ void quit(t_data* data) {
   pthread_mutex_destroy(data->data_mutex);
   pthread_mutex_destroy(data->server_mutex);
   exit(0);
+}
+
+// Removes whitespaces (isspace from ctypes)
+char* trim_whitespace(char* str) { 
+  while(isspace((unsigned char)*str)) str++;
+  if(*str == '\0') return str;
+  char* end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+  *(end+1) = '\0';
+  return str;
 }
