@@ -9,11 +9,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#define EXITMSG   "/exit"
 #define MAXCLIENT 2
 #define PORT      8080
 
 int in(char* arr[], ssize_t size, const char* target);
 
 #endif // COMMON_H
-

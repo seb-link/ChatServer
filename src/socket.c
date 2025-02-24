@@ -36,20 +36,19 @@ int init(void) {
   return 0;
 }
 
-void *getconn(void *data) {
-  if (data == NULL) {
+int getconn(t_data *socks) {
+  if (socks == NULL) {
     fprintf(stderr, "Error: NULL data passed to getconn\n");
-    return (void *)EXIT_FAILURE;
+    return -EXIT_FAILURE;
   }
-
-  t_data *socks = (t_data *)data;
   
   pthread_mutex_lock(socks->server_mutex);
   int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
   pthread_mutex_unlock(socks->server_mutex);
+
   if (new_sock < 0) {
     perror("accept");
-    return (void *)(intptr_t) -EXIT_FAILURE;
+    return -EXIT_FAILURE;
   }
 
   bool alloc = false;
@@ -69,5 +68,5 @@ void *getconn(void *data) {
     close(new_sock);
   }
 
-  return (void *)(intptr_t)new_sock;
+  return new_sock;
 }

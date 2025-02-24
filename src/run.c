@@ -6,7 +6,6 @@
 
 void* threadTarget(void* data);
 void quit(t_data* data);
-char* trim_whitespace(char* str);
 
 void run(void) {  
   t_data data;
@@ -54,7 +53,7 @@ void* threadTarget(void* sdata) {
   t_data* data;
   data = (t_data*) sdata;
   while (true) {
-    int new_sock = (int) (intptr_t) getconn(data);
+    int new_sock = getconn(data);
     if (new_sock < 0) {
       perror("accept");
       printf("FATAL : Cloud not get connections !\n");
@@ -68,48 +67,20 @@ void* threadTarget(void* sdata) {
       quit(data);
     }
     char *username = malloc(MAXNAMSIZE);
-    username = getmsg(server_fd); // New client username
-    if(!username) {
-      printf("Connection closed before username received\n");
-      close(new_sock);
-      removeClient(data, new_sock);
+    username = getusername(data, new_sock); // New client username
+    if (!username) 
       continue;
-    }
-    char* clean_name = trim_whitespace(username);
-    if(strlen(clean_name) == 0) {
-      printf("Empty username received\n");
-      send(new_sock, "ERROR: Username cannot be empty\n", BUFFSIZE, 0);
-      free(username);
-      close(new_sock);
-      removeClient(data, new_sock);
-      continue;
-    }
-    bool duplicate = false;
+    
     pthread_mutex_lock(data->data_mutex);
     for(int i = 0; i < MAXCLIENT; i++) {
-      if(data->clients[i]->u && strcmp(data->clients[i]->username, clean_name) == 0) {
-        duplicate = true;
-        break;
-      }
-    }
-    pthread_mutex_unlock(data->data_mutex);
-
-    if (duplicate) {
-      send(new_sock, "ERROR: Username already taken\n", 30, 0);
-      free(username);
-      close(new_sock);
-      removeClient(data, new_sock);
-      continue;
-    }
-    for(int i = 0; i < MAXCLIENT; i++) {
       if(data->clients[i]->sock == new_sock) {
-        data->clients[i]->username = strdup(clean_name);
+        data->clients[i]->username = strdup(username);
         break;
       }
     }
     pthread_mutex_unlock(data->data_mutex);
 
-    printf("New client : %s\n",clean_name);
+    printf("New client : %s\n",username);
     while (running) {
       msg = getmsg(new_sock);
       if (msg != 0) {
@@ -121,10 +92,12 @@ void* threadTarget(void* sdata) {
               free(msg);
               close(new_sock);
               printf("Client Exited.\n");
-              return 0;
-              break;
+              continue;
+              break; // Never reached but for good practice
+
             case QUIT:
               quit(data);
+            
             default :
               break;
           }
@@ -162,14 +135,4 @@ void quit(t_data* data) {
   pthread_mutex_destroy(data->data_mutex);
   pthread_mutex_destroy(data->server_mutex);
   exit(0);
-}
-
-// Removes whitespaces (isspace from ctypes)
-char* trim_whitespace(char* str) { 
-  while(isspace((unsigned char)*str)) str++;
-  if(*str == '\0') return str;
-  char* end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
-  *(end+1) = '\0';
-  return str;
 }

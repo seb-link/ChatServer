@@ -7,6 +7,7 @@
 
 char* getmsg      (int sock);
 void  broadcast   (t_data *data, char* msg);
-void  removeClient(t_data *data, int sock) ;
+char* getusername (t_data* data, int sock);
+void  removeClient(t_data *data, int sock);
 
 #endif

@@ -1,6 +1,46 @@
 #include "common.h"
 #include "client.h"
 
+char* trim_whitespace(char* str);
+
+// Get Client username
+char* getusername(t_data* data, int sock) {
+  char *username = malloc(MAXNAMSIZE);
+  username = getmsg(server_fd); // New client username
+  if(!username) {
+    printf("Connection closed before username received\n");
+    close(sock);
+    removeClient(data, sock);
+    return NULL; // Failed
+  }
+  char* clean_name = trim_whitespace(username);
+  if(strlen(clean_name) == 0) {
+    printf("Empty username received\n");
+    send(sock, "ERROR: Username cannot be empty\n", BUFFSIZE, 0);
+    free(username);
+    close(sock);
+    removeClient(data, sock);
+    return NULL; // Failed
+  }
+  bool duplicate = false;
+  pthread_mutex_lock(data->data_mutex);
+  for(int i = 0; i < MAXCLIENT; i++) {
+    if(data->clients[i]->u && strcmp(data->clients[i]->username, clean_name) == 0) {
+      duplicate = true;
+      break;
+    }
+  }
+  pthread_mutex_unlock(data->data_mutex);
+
+  if (duplicate) {
+    send(sock, "ERROR: Username already taken\n", 30, 0);
+    free(username);
+    close(sock);
+    removeClient(data, sock);
+    return NULL; // Failed
+  }
+  return clean_name;
+}
 
 void removeClient(t_data *data, int sock) {
   pthread_mutex_lock(data->data_mutex);
@@ -41,3 +81,12 @@ char *getmsg(int sock) {
   return msg;
 }
 
+// Removes whitespaces (isspace from ctypes)
+char* trim_whitespace(char* str) { 
+  while(isspace((unsigned char)*str)) str++;
+  if(*str == '\0') return str;
+  char* end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+  *(end+1) = '\0';
+  return str;
+}
