@@ -1,6 +1,6 @@
 CC         = gcc
 CFLAGS     = -Wall -Wextra -Iinclude -std=c17 -llibssl -libcrypto -ggdb
-CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign
+CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign -Wno-unused-command-line-argument
 
 SRC_DIR = src
 OBJ_DIR = obj

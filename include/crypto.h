@@ -2,6 +2,8 @@
 #define SERVER_CRYPTO_H
 
 #include <openssl/sha.h>
+#include <fcntl.h>
+#include <errno.h>
 
 typedef struct {
   unsigned char* rand;
@@ -10,6 +12,7 @@ typedef struct {
 
 char* key;
 
+int crypto_init(void);
 challenge generate_challenge(void);
 
 #endif

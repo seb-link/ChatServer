@@ -28,9 +28,14 @@ void run(void) {
   data.clients = Pclients;
 
   if (init() != 0) {
-    printf("FATAL : Cloud not initialize socket\n");
+    printf("FATAL : Cloud not initialize socket.\n");
     return;
   }
+  if (crypto_init() != 0) {
+    printf("FATAL : Cloud not read from keyfile.\n");
+    return;
+  }
+  printf("Finished initializing.\n");
 
   for(int i = 0; i< MAXCLIENT; i++) {
     clients[i] = null;
@@ -68,6 +73,7 @@ void* threadTarget(void* sdata) {
       perror("malloc");
       quit(data);
     }
+
     char *username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
     if (!username) 
@@ -82,16 +88,21 @@ void* threadTarget(void* sdata) {
     }
     pthread_mutex_unlock(data->data_mutex);
 
+    // Client authentication
     challenge challenge;
     char *result;
     challenge = generate_challenge();
     send(new_sock, challenge.rand, BUFFSIZE, 0);
+    sleep(1);
     result = getmsg(new_sock);
+
     if (strcmp(result, challenge.hash) != 0) {
-      send(new_sock, "Cloud identify client", BUFFSIZE, 0); 
+      send(new_sock, "Cloudn't identify client", BUFFSIZE, 0); 
       close(new_sock);
       continue;
     }
+
+
     printf("New client : %s\n",username);
     while (running) {
       msg = getmsg(new_sock);
