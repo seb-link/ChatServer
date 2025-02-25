@@ -121,10 +121,11 @@ void* threadTarget(void* sdata) {
             case KICK_NOTFOUND :
               printf("Kick : user not found\n");
               break;
-              
+
             case QUIT:
+              printf("Stopping server...\n");
               quit(data);
-            
+              break; // Never reached but for good practice
             default :
               break;
           } // switch -> command output
