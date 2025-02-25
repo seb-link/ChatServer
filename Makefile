@@ -1,5 +1,6 @@
-CC      = gcc
-CFLAGS  = -Wall -Wextra -Iinclude -std=c17 -lssl -Wno-unused-variable -g 
+CC         = gcc
+CFLAGS     = -Wall -Wextra -Iinclude -std=c17 -llibssl -libcrypto -g
+CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -18,7 +19,7 @@ $(TARGET): $(OBJS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(CWARNFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)

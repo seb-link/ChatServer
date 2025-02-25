@@ -1,5 +1,6 @@
 #include "common.h"
 #include "hcommand.h"
+#include "crypto.h"
 #include "socket.h"
 #include "run.h"
 #include "client.h"
@@ -81,12 +82,14 @@ void* threadTarget(void* sdata) {
     }
     pthread_mutex_unlock(data->data_mutex);
 
-    char *challenge;
+    challenge challenge;
     char *result;
-    challenge = generate_challenge(username);
+    challenge = generate_challenge();
+    send(new_sock, challenge.rand, BUFFSIZE, 0);
     result = getmsg(new_sock);
-    if (strcmp(result, challenge) != 0) {
+    if (strcmp(result, challenge.hash) != 0) {
       send(new_sock, "Cloud identify client", BUFFSIZE, 0); 
+      close(new_sock);
       continue;
     }
     printf("New client : %s\n",username);

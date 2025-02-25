@@ -1,7 +1,10 @@
 #include "common.h"
 #include "hcommand.h"
 
-int kick(char *username) {}
+int kick(char *username) {
+
+  return 0;
+}
 
 int parcmd(char** msg) {
   char *current;
