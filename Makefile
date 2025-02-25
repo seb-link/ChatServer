@@ -1,5 +1,5 @@
 CC         = gcc
-CFLAGS     = -Wall -Wextra -Iinclude -std=c17 -llibssl -libcrypto -g
+CFLAGS     = -Wall -Wextra -Iinclude -std=c17 -llibssl -libcrypto -ggdb
 CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign
 
 SRC_DIR = src
