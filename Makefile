@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -Wall -Wextra -Iinclude -std=c17 -Wno-unused-variable -g 
+CFLAGS  = -Wall -Wextra -Iinclude -std=c17 -lssl -Wno-unused-variable -g 
 
 SRC_DIR = src
 OBJ_DIR = obj

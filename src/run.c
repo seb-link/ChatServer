@@ -81,6 +81,14 @@ void* threadTarget(void* sdata) {
     }
     pthread_mutex_unlock(data->data_mutex);
 
+    char *challenge;
+    char *result;
+    challenge = generate_challenge(username);
+    result = getmsg(new_sock);
+    if (strcmp(result, challenge) != 0) {
+      send(new_sock, "Cloud identify client", BUFFSIZE, 0); 
+      continue;
+    }
     printf("New client : %s\n",username);
     while (running) {
       msg = getmsg(new_sock);

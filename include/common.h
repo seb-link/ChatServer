@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <time.h>
 
 #define MAXCLIENT 2
 #define PORT      8080
