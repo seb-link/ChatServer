@@ -12,6 +12,7 @@
 #define MAXCLIENT 2
 #define PORT      8080
 
-int in(char* arr[], ssize_t size, const char* target);
+int   in    (char* arr[], ssize_t size, const char* target);
+char* strdupli (const char* s);
 
 #endif // COMMON_H

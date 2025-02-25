@@ -1,5 +1,5 @@
 #include "common.h"
-#include "command.h"
+#include "hcommand.h"
 
 int kick(char *username) {}
 

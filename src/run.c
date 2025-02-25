@@ -1,5 +1,5 @@
 #include "common.h"
-#include "command.h"
+#include "hcommand.h"
 #include "socket.h"
 #include "run.h"
 #include "client.h"
@@ -17,7 +17,8 @@ void run(void) {
   Client null;
   null.u = false;
   null.sock = 0;
-  
+  null.username = "";
+
   pthread_mutex_init(&data_mutex, NULL);
   pthread_mutex_init(&server_mutex, NULL);
   data.data_mutex = &data_mutex;
@@ -74,7 +75,7 @@ void* threadTarget(void* sdata) {
     pthread_mutex_lock(data->data_mutex);
     for(int i = 0; i < MAXCLIENT; i++) {
       if(data->clients[i]->sock == new_sock) {
-        data->clients[i]->username = strdup(username);
+        data->clients[i]->username = strdupli(username);
         break;
       }
     }
@@ -109,15 +110,6 @@ void* threadTarget(void* sdata) {
     close(new_sock);
   }
   return (void*) (intptr_t) exitcode;
-}
-
-int in(char* arr[], ssize_t size, const char* target) {
-  for (ssize_t i = 0; i < size; i++) {
-    if (arr[i] != NULL && strcmp(arr[i], target) == 0) {
-      return 1; 
-    }
-  }
-  return 0;
 }
 
 void quit(t_data* data) {

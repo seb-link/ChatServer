@@ -6,13 +6,14 @@ char* trim_whitespace(char* str);
 // Get Client username
 char* getusername(t_data* data, int sock) {
   char *username = malloc(MAXNAMSIZE);
-  username = getmsg(server_fd); // New client username
+  username = getmsg(sock); // New client username
   if(!username) {
     printf("Connection closed before username received\n");
     close(sock);
     removeClient(data, sock);
     return NULL; // Failed
   }
+  printf("DEBUG : got username : \"%s\" \"%x\"\n",username,username);
   char* clean_name = trim_whitespace(username);
   if(strlen(clean_name) == 0) {
     printf("Empty username received\n");
@@ -22,15 +23,19 @@ char* getusername(t_data* data, int sock) {
     removeClient(data, sock);
     return NULL; // Failed
   }
+  printf("DEBUG: Checking for duplicate...\n");
   bool duplicate = false;
   pthread_mutex_lock(data->data_mutex);
   for(int i = 0; i < MAXCLIENT; i++) {
-    if(data->clients[i]->u && strcmp(data->clients[i]->username, clean_name) == 0) {
-      duplicate = true;
-      break;
+    if(data->clients[i]->u) {
+      if (strcmp(data->clients[i]->username, clean_name) == 0) {
+        duplicate = true;
+        break;
+      }
     }
   }
   pthread_mutex_unlock(data->data_mutex);
+  printf("Finished searching\n");
 
   if (duplicate) {
     send(sock, "ERROR: Username already taken\n", 30, 0);
