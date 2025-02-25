@@ -4,7 +4,7 @@
 #include "client.h"
 
 int kick(char *username,t_data *data) {
-  char *msg;
+  char *msg = "";
   sprintf(msg, "%s just got kicked !", username);
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {

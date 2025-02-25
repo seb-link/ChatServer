@@ -1,6 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include "socket.h"
 
 static char *commands[] = {"/exit","/stop","/kick"};
 
@@ -13,6 +14,6 @@ static char *commands[] = {"/exit","/stop","/kick"};
 #define CMD_PERM_ERR   4  // Command permission error
 #define KICK_NOTFOUND  5  // Kick function : user not found 
 
-int parcmd(char** msg,t_data *data);
+int parcmd(char** msg, t_data *data);
 
 #endif // COMMAND_H

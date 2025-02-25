@@ -5,6 +5,12 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#ifdef _WIN32
+#error "Not implement for windows, why use windows as server anyway ?"
+#else
+#define randgen get_random_bytes
+#endif
+
 typedef struct {
   unsigned char* rand;
   unsigned char* hash;

@@ -22,12 +22,11 @@ int crypto_init(void) {
 }
 
 challenge generate_challenge(void) {
-  unsigned int   seed = time(NULL) ^ getpid(); // semi-unique seed  super dangerous btw
   unsigned char* hash = NULL;
   unsigned char* rand = NULL;
   challenge result;
   // Generate 64 bytes of random data
-  get_random_bytes(rand, 64);
+  randgen(rand, 64);
   result.rand = rand;
   // Hash(key + random_data)
   strcat(rand,key);
