@@ -4,7 +4,7 @@
 
 static char *commands[] = {"/exit","/stop","/kick"};
 
-#define CMD_NUM sizeof(commands) // Number of commands
+#define CMD_NUM sizeof(commands) / sizeof(commands[0]) // Number of commands
 
 #define QUIT           99 // Close the program
 #define CLI_EXIT       1  // Client exited
