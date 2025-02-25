@@ -110,7 +110,7 @@ void* threadTarget(void* sdata) {
         printf("Client : %s\n",msg);
         broadcast(data, msg);
         if (strcmp(&msg[0],"/")) {
-          switch(parcmd(&msg)) {
+          switch(parcmd(&msg,data)) {
             case CLI_EXIT:
               free(msg);
               close(new_sock);
@@ -118,19 +118,22 @@ void* threadTarget(void* sdata) {
               continue;
               break; // Never reached but for good practice
 
+            case KICK_NOTFOUND :
+              printf("Kick : user not found\n");
+              break;
+              
             case QUIT:
               quit(data);
             
             default :
               break;
-          }
-        }
-      }
-      printf("No message received\n");
+          } // switch -> command output
+        } // if (strcmp(...)) -> if it's a command
+      } // if (msg != 0) -> if there is a msg
       free(msg);
-    }
+    } // while (running) -> while connection alive
     close(new_sock);
-  }
+  } // while (true)
   return (void*) (intptr_t) exitcode;
 }
 
