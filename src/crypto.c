@@ -45,7 +45,6 @@ challenge* generate_challenge(void) {
 }
 
 // Generate cryptographically secure random bytes
-// Generate cryptographically secure random bytes
 int get_random_bytes(unsigned char **buffer, size_t length) {
   *buffer = malloc(length);
   if (*buffer == NULL) {
