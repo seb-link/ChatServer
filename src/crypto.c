@@ -25,9 +25,9 @@ int crypto_init(void) {
 
 challenge* generate_challenge(void) {
   size_t len = 64;
-  unsigned char* hash = NULL;
-  unsigned char* rand = malloc(len);
-  challenge* result;
+  unsigned char* hash =   NULL;
+  unsigned char* rand =   malloc(len);
+  challenge*     result = NULL;
   // Generate 64 bytes of random data
   int a = get_random_bytes(&rand, len);
   if (a < 0)
