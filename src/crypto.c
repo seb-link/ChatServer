@@ -27,7 +27,9 @@ challenge* generate_challenge(void) {
   size_t len = 64;
   unsigned char* hash =   NULL;
   unsigned char* rand =   malloc(len);
-  challenge*     result = NULL;
+  challenge* result;
+  result->rand = NULL;
+  result->hash = NULL;
   // Generate 64 bytes of random data
   int a = get_random_bytes(&rand, len);
   if (a < 0)
@@ -44,25 +46,37 @@ challenge* generate_challenge(void) {
 
 // Generate cryptographically secure random bytes
 int get_random_bytes(unsigned char **buffer, size_t length) {
-  int fd = open("/dev/urandom", O_RDONLY);
-  if (fd == -1) {
-      perror("open");
+  *buffer = malloc(length);
+  if (*buffer == NULL) {
+      perror("malloc");
       return -1;
   }
 
-  ssize_t result = read(fd, &buffer, length);
+  int fd = open("/dev/urandom", O_RDONLY);
+  if (fd == -1) {
+      perror("open");
+      free(*buffer);
+      return -1;
+  }
+
+  ssize_t result = read(fd, *buffer, length);
   if (result == -1) {
        perror("read");
        close(fd);
+       free(*buffer);
        return -1;
   } else if (result == 0) {
     fprintf(stderr, "Unexpected EOF reading /dev/urandom\n");
     close(fd);
+    free(*buffer);
     return -1;
   }
 
-  if (result != length)
+  if (result != length) {
+    free(*buffer);
+    close(fd);
     return -1;
+  }
   
   close(fd);
   return 0;
