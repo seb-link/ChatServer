@@ -21,4 +21,4 @@ char* key;
 int crypto_init(void);
 challenge generate_challenge(void);
 
-#endif
+#endif // SERVER_CRYPTO_H
