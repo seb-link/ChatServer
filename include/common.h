@@ -13,7 +13,10 @@
 #define MAXCLIENT 2
 #define PORT      8080
 
-int   in    (char* arr[], ssize_t size, const char* target);
+#include "socket.h"
+
+int   in       (char* arr[], ssize_t size, const char* target);
+void  quit     (t_data* data);
 char* strdupli (const char* s);
 
 #endif // COMMON_H

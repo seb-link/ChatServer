@@ -1,24 +1,19 @@
-#ifndef SERVER_CRYPTO_H
-#define SERVER_CRYPTO_H
+#ifndef CRYPTO_H
+#define CRYPTO_H
 
 #include <openssl/sha.h>
 #include <fcntl.h>
 #include <errno.h>
 
-#ifdef _WIN32
-#error "Not implement for windows, why use windows as server anyway ?"
-#else
-#define randgen get_random_bytes
-#endif
 
 typedef struct {
   unsigned char* rand;
   unsigned char* hash;
 } challenge;
 
-char* key;
+extern char* sharkey;  // Declare sharkey as extern
 
-int crypto_init(void);
-challenge generate_challenge(void);
+int        crypto_init        (void);
+challenge* generate_challenge (void);
 
-#endif // SERVER_CRYPTO_H
+#endif // CRYPTO_H

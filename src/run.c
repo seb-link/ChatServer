@@ -89,14 +89,20 @@ void* threadTarget(void* sdata) {
     pthread_mutex_unlock(data->data_mutex);
 
     // Client authentication
-    challenge challenge;
+    challenge* challenge;
     char *result;
     challenge = generate_challenge();
-    send(new_sock, challenge.rand, BUFFSIZE, 0);
+    if (!challenge) { 
+      printf("ERROR : Cloud not generate challenge ! Dropping connection...\n");
+      send(new_sock, "ERROR : Server side problem !", BUFFSIZE, 0);
+      close(new_sock);
+      continue;
+    }
+    send(new_sock, challenge->rand, BUFFSIZE, 0);
     sleep(1);
     result = getmsg(new_sock);
 
-    if (strcmp(result, challenge.hash) != 0) {
+    if (strcmp(result, challenge->hash) != 0) {
       send(new_sock, "Cloudn't identify client", BUFFSIZE, 0); 
       close(new_sock);
       continue;
@@ -136,21 +142,4 @@ void* threadTarget(void* sdata) {
     close(new_sock);
   } // while (true)
   return (void*) (intptr_t) exitcode;
-}
-
-void quit(t_data* data) {
-  data->reqshut = true;
-  pthread_mutex_lock(data->data_mutex);
-  for (int i = 0; i< MAXCLIENT; i++) {
-    if (data->clients[i]->u == true) {
-      close(data->clients[i]->sock);
-    }
-    // Not technically required but idc
-    data->clients[i]->u    = false; 
-    data->clients[i]->sock = 0;
-  }
-  pthread_mutex_unlock(data->data_mutex);
-  pthread_mutex_destroy(data->data_mutex);
-  pthread_mutex_destroy(data->server_mutex);
-  exit(0);
 }
