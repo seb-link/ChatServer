@@ -88,6 +88,9 @@ void* threadTarget(void* sdata) {
     }
     pthread_mutex_unlock(data->data_mutex);
 
+    // Server authentication
+    
+
     // Client authentication
     challenge* challenge;
     char *result;

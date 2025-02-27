@@ -3,6 +3,9 @@
 
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/err.h>
 #include <fcntl.h>
 #include <errno.h>
 
