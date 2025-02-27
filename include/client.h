@@ -6,7 +6,7 @@
 #define MAXNAMSIZE 20
 
 char* getmsg      (int sock);
-void  broadcast   (t_data *data, char* msg);
+void  broadcast   (t_data *data, char* msg, char* username);
 char* getusername (t_data* data, int sock);
 void  removeClient(t_data *data, int sock);
 

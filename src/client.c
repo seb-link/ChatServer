@@ -55,7 +55,8 @@ void removeClient(t_data *data, int sock) {
   pthread_mutex_unlock(data->data_mutex);
 }
 
-void broadcast(t_data *data, char* msg) {
+void broadcast(t_data *data, char* msg,char* username) {
+  sprintf(msg, "%s : %s", username, msg);
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i<MAXCLIENT; i++) {
     if (data->clients[i]->u == true) {

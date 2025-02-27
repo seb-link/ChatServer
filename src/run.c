@@ -125,8 +125,8 @@ void* threadTarget(void* sdata) {
     while (running) {
       msg = getmsg(new_sock);
       if (msg != 0) {
-        printf("Client : %s\n",msg);
-        broadcast(data, msg);
+        printf("%s : %s\n", username, msg);
+        broadcast(data, msg, username);
         if (strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
             case CLI_EXIT:
