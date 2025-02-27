@@ -2,6 +2,8 @@
 #include "client.h"
 
 char* trim_whitespace(char* str);
+const size_t  banned_username_len =  1;
+const char   *banned_username[]   =  {"ERROR"};
 
 // Get Client username
 char* getusername(t_data* data, int sock) {
@@ -22,6 +24,20 @@ char* getusername(t_data* data, int sock) {
     removeClient(data, sock);
     return NULL; // Failed
   }
+  for (int i = 0; i < banned_username_len; i++) {
+    if (strcmp(clean_name, banned_username[i])) {
+      send(sock, "ERROR: Invalid username", BUFFSIZE, 0);
+      close(sock);
+      return NULL;
+    }
+  }
+
+  if (check_username(clean_name)) {
+    send(sock, "ERROR: Username can only contain letters and numbers.", BUFFSIZE, 0);
+    close(sock);
+    return NULL;
+  }
+  
   bool duplicate = false;
   pthread_mutex_lock(data->data_mutex);
   for(int i = 0; i < MAXCLIENT; i++) {
@@ -83,6 +99,15 @@ char *getmsg(int sock) {
   }
   msg[s] = '\0';
   return msg;
+}
+
+int check_username(char *str) {
+  for (; *str != '\0'; str++) {
+      if (!isalnum((unsigned char)*str)) {
+          return 1;
+      }
+  }
+  return 0;
 }
 
 // Removes whitespaces (isspace from ctypes)

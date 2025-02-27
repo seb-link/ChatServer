@@ -137,7 +137,7 @@ void* threadTarget(void* sdata) {
               break; // Never reached but for good practice
 
             case KICK_NOTFOUND :
-              printf("Kick : user not found\n");
+              send(new_sock, "ERROR : user not found", BUFFSIZE, 0);
               break;
 
             case QUIT:

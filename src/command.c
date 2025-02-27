@@ -13,7 +13,7 @@ int kick(char *username,t_data *data) {
     if (data->clients[i]->u && strcmp(data->clients[i]->username, username) == 0) {
       send(data->clients[i]->sock, "You were kicked",BUFFSIZE,0);
       close(data->clients[i]->sock);
-      broadcast(data,msg);
+      broadcast(data,msg,username);
       return 0;
     }
   }
