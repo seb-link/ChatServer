@@ -82,11 +82,10 @@ int main(void) {
         return 1;
     }
     int result = 0;
-    int testnum = 10000;
-    for (int i = 0; i<testnum; i++) {
+    for (int i = 0; i<TEST_NUM; i++) {
         result += test();
     } 
-    printf("Got %d good on %d tries\n", result, testnum);
-    printf("That would be %.4lf percent \n", (double) result / testnum * 100);
+    printf("Got %d good on %d tries\n", result, TEST_NUM);
+    printf("That would be %.4lf percent \n", (double) result / TEST_NUM * 100);
     return 0;
 }
