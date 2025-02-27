@@ -1,5 +1,13 @@
 #include "common.h"
 
+// Helper function to convert binary to hex string
+void print_hex(const unsigned char *data, size_t len) {
+  for (size_t i = 0; i < len; i++) {
+      printf("%02x", data[i]);
+  }
+  printf("\n");
+}
+
 int in(char* arr[], ssize_t size, const char* target) {
   for (ssize_t i = 0; i < size; i++) {
     if (arr[i] != NULL && strcmp(arr[i], target) == 0) {

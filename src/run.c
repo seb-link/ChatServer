@@ -101,6 +101,15 @@ void* threadTarget(void* sdata) {
     send(new_sock, challenge->rand, BUFFSIZE, 0);
     sleep(1);
     result = getmsg(new_sock);
+    printf("Client HMAC: ");
+    print_hex(result, SHA256_DIGEST_LENGTH);
+
+    // Server verification
+    if (CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) == 0) {
+        printf("Authentication successful!\n");
+    } else {
+        printf("Authentication failed!\n");
+    }
 
     if (strcmp(result, challenge->hash) != 0) {
       send(new_sock, "Cloudn't identify client", BUFFSIZE, 0); 

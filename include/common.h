@@ -18,5 +18,6 @@
 int   in       (char* arr[], ssize_t size, const char* target);
 void  quit     (t_data* data);
 char* strdupli (const char* s);
+void  print_hex(const unsigned char *data, size_t len);
 
 #endif // COMMON_H

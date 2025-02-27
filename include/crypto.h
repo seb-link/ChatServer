@@ -2,6 +2,7 @@
 #define CRYPTO_H
 
 #include <openssl/sha.h>
+#include <openssl/hmac.h>
 #include <fcntl.h>
 #include <errno.h>
 

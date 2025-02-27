@@ -23,26 +23,26 @@ int crypto_init(void) {
   return 0;
 }
 
-challenge* generate_challenge(void) {
-  size_t len = 64;
-  unsigned char* hash =   NULL;
-  unsigned char* rand =   malloc(len);
-  challenge* result;
-  result->rand = NULL;
-  result->hash = NULL;
-  // Generate 64 bytes of random data
-  int a = get_random_bytes(&rand, len);
-  if (a < 0)
-    return NULL;
-  result->rand = rand;
-  // Hash(key + random_data)
-  strcat(rand,sharkey);
-  //SHA256(rand, strlen(rand), hash); // it works when it wants.
-  hash = "haram";
-  result->hash = hash;
-  // return Hash + random_data
+challenge* generate_challenge() {
+  challenge *result = NULL;
+  size_t key_len = strlen(sharkey);
+
+  // Server generates random challenge (64 bytes)
+  unsigned char random[64];
+  get_random_bytes(&random,64);
+
+  // Server computes HMAC-SHA256
+  unsigned char server_hmac[SHA256_DIGEST_LENGTH];
+  
+  HMAC(EVP_sha256(),sharkey,key_len,random,64,server_hmac,(unsigned int*) SHA256_DIGEST_LENGTH);
+
+  printf("Server HMAC: ");
+  print_hex(server_hmac, SHA256_DIGEST_LENGTH);
+  result->hash = server_hmac;
+  result->rand = random;
   return result;
 }
+
 
 // Generate cryptographically secure random bytes
 int get_random_bytes(unsigned char **buffer, size_t length) {
