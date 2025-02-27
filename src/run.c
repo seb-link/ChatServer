@@ -106,9 +106,12 @@ void* threadTarget(void* sdata) {
 
     // Server verification
     if (CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) == 0) {
-        printf("Authentication successful!\n");
+      printf("Authentication successful!\n");
     } else {
-        printf("Authentication failed!\n");
+      printf("Client %s : Authentication failed!\n", username);
+      send(new_sock, "ERROR : Invalid HMAC", BUFFSIZE, 0);
+      close(new_sock);
+      continue;
     }
 
     if (strcmp(result, challenge->hash) != 0) {
