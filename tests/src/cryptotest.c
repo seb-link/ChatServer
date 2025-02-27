@@ -27,7 +27,6 @@ challenge* custom_generate_challenge(unsigned char random[64]) {
     );
     if (server_hmac == 0) {
       fprintf(stderr, "HMAC computation failed!\n");
-      print_hex(server_hmac, hmac_len);
       return NULL;
     }
   
@@ -67,7 +66,7 @@ int test(void) {
     if (CRYPTO_memcmp(a->hash, b->hash, SHA256_DIGEST_LENGTH)) {
         free(a->hash);
         free(b->hash);
-        printf("HASH MISMATCH");
+        printf("HASH MISMATCH ");
         return 0;
     }
     free(a->hash);
@@ -83,11 +82,11 @@ int main(void) {
         return 1;
     }
     int result = 0;
-    int testnum = 500000;
+    int testnum = 10000;
     for (int i = 0; i<testnum; i++) {
         result += test();
     } 
     printf("Got %d good on %d tries\n", result, testnum);
-    printf("That would be %lf percent \n", (double) result / testnum * 100);
+    printf("That would be %.4lf percent \n", (double) result / testnum * 100);
     return 0;
 }

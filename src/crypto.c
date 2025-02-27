@@ -51,7 +51,6 @@ challenge* generate_challenge() {
   );
   if (server_hmac == 0) {
     fprintf(stderr, "HMAC computation failed!\n");
-    print_hex(server_hmac, hmac_len);
     return NULL;
   }
 
