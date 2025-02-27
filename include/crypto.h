@@ -8,7 +8,7 @@
 
 
 typedef struct {
-  unsigned char* rand;
+  unsigned char (*rand)[64];
   unsigned char* hash;
 } challenge;
 

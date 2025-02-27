@@ -32,7 +32,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 # Fixed test rule with explicit path handling
 $(TEST_BINS): $(BIN_DIR)/%: $(TST_DIR)/%.c $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(CWARNFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CC) -Itests $(CFLAGS) $(CWARNFLAGS) $^ -o $@ $(LDFLAGS)
 
 tests: $(TEST_BINS)
 

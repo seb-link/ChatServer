@@ -24,23 +24,40 @@ int crypto_init(void) {
 }
 
 challenge* generate_challenge() {
-  challenge *result = NULL;
+  static challenge result;
+  result.hash = NULL;
+  result.rand = NULL;
   size_t key_len = strlen(sharkey);
 
   // Server generates random challenge (64 bytes)
-  unsigned char random[64];
+  static unsigned char random[64] = { 0 };
   get_random_bytes(&random,64);
 
   // Server computes HMAC-SHA256
-  unsigned char server_hmac[SHA256_DIGEST_LENGTH];
-  
-  HMAC(EVP_sha256(),sharkey,key_len,random,64,server_hmac,(unsigned int*) SHA256_DIGEST_LENGTH);
+  unsigned char* server_hmac = malloc(SHA256_DIGEST_LENGTH);
+  unsigned int   hmac_len    = SHA256_DIGEST_LENGTH;
+  bzero(server_hmac, hmac_len);
 
-  printf("Server HMAC: ");
-  print_hex(server_hmac, SHA256_DIGEST_LENGTH);
-  result->hash = server_hmac;
-  result->rand = random;
-  return result;
+  if (!server_hmac) {
+    perror("malloc");
+    return NULL;
+  }
+
+  unsigned char* hmac = HMAC(
+    EVP_sha256(),                                   // Hash algorithm
+    (const unsigned char*)sharkey, strlen(sharkey), // Key and its length
+    (const unsigned char*)random,  64,              // Data and its length
+    server_hmac, &hmac_len                          // Output buffer and size
+  );
+  if (server_hmac == 0) {
+    fprintf(stderr, "HMAC computation failed!\n");
+    print_hex(server_hmac, hmac_len);
+    return NULL;
+  }
+
+  result.hash = server_hmac;
+  result.rand = &random;
+  return &result;
 }
 
 
