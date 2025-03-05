@@ -102,7 +102,7 @@ void* threadTarget(void* sdata) {
       close(new_sock);
       continue;
     }
-    send(new_sock, challenge->rand, BUFFSIZE, 0);
+    send(new_sock, challenge->rand, 64, 0);
     sleep(1);
     result = getmsg(new_sock);
     printf("Client HMAC: ");

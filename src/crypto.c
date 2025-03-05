@@ -32,7 +32,8 @@ challenge* generate_challenge() {
   // Server generates random challenge (64 bytes)
   static unsigned char random[64] = { 0 };
   get_random_bytes(&random,64);
-
+  printf("RAND: \"");
+  print_hex(random,64);
   // Server computes HMAC-SHA256
   unsigned char* server_hmac = malloc(SHA256_DIGEST_LENGTH);
   unsigned int   hmac_len    = SHA256_DIGEST_LENGTH;
@@ -54,6 +55,9 @@ challenge* generate_challenge() {
     return NULL;
   }
 
+  printf("Good HMAC : \"");
+  print_hex(server_hmac, SHA256_DIGEST_LENGTH);
+  printf("\"\n");
   result.hash = server_hmac;
   result.rand = &random;
   return &result;
