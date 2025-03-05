@@ -76,6 +76,7 @@ void* threadTarget(void* sdata) {
 
     char *username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
+    printf("DEBUG : \"%s\"\n",username);
     if (!username) 
       continue;
     

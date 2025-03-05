@@ -25,7 +25,7 @@ char* getusername(t_data* data, int sock) {
     return NULL; // Failed
   }
   for (int i = 0; i < banned_username_len; i++) {
-    if (strcmp(clean_name, banned_username[i])) {
+    if (strcmp(clean_name, banned_username[i]) == 0) {
       send(sock, "ERROR: Invalid username", BUFFSIZE, 0);
       close(sock);
       return NULL;
