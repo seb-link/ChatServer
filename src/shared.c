@@ -35,14 +35,14 @@ void quit(t_data* data) {
   exit(0);
 }
 
-char *strdupli(const char *c)
-{
+char *strdupli(const char *c) {
     char *dup = malloc(strlen(c) + 1);
 
-    if (dup != NULL) {
-       strcpy(dup, c);
-    }else{
+    if (!dup){
       perror("malloc");
+      return NULL;
+    }else {
+      strcpy(dup,c); // Copies c -> dup
     }
-    return dup;
+    return dup; // Note: Should be freed
 }
