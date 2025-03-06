@@ -4,6 +4,7 @@
 #include "socket.h"
 #include "run.h"
 #include "client.h"
+#include "log.h"
 
 void* threadTarget(void* data);
 void quit(t_data* data);
@@ -31,10 +32,17 @@ void run(void) {
     printf("FATAL : Cloud not initialize socket.\n");
     return;
   }
+  
   if (crypto_init() != 0) {
     printf("FATAL : Cloud not read from keyfile.\n");
     return;
   }
+  
+  if (log_init("log.log")) {
+    printf("FATAL : Cloud not initialize log file.\n");
+    return;
+  }
+
   printf("Finished initializing.\n");
 
   for(int i = 0; i< MAXCLIENT; i++) {
@@ -45,6 +53,7 @@ void run(void) {
   
 
   printf("Listening of port : %d...\n",PORT);
+  log_msg(LOG_INFO, "Server started and is listening on port %d",PORT);
   for (int i = 0; i<MAXCLIENT; i++) {
     pthread_join(threads[i], 0);
   }
@@ -65,6 +74,7 @@ void* threadTarget(void* sdata) {
     if (new_sock < 0) {
       perror("accept");
       printf("FATAL : Cloud not get connections !\n");
+      log_msg(LOG_FATAL, "Cloud not get connections");
       quit(data);
     }
 
@@ -72,6 +82,7 @@ void* threadTarget(void* sdata) {
     char* msg = malloc(sizeof(char) * BUFFSIZE);
     if (!msg) {
       perror("malloc");
+      log_msg(LOG_FATAL, "Cloud not allocate memory using malloc");
       quit(data);
     }
 
@@ -100,6 +111,7 @@ void* threadTarget(void* sdata) {
       printf("ERROR : Cloud not generate challenge ! Dropping connection...\n");
       send(new_sock, "ERROR : Server side problem !", BUFFSIZE, 0);
       close(new_sock);
+      log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
       continue;
     }
     send(new_sock, challenge->rand, 64, 0);
@@ -113,6 +125,7 @@ void* threadTarget(void* sdata) {
       printf("Client %s : Authentication failed!\n", username);
       send(new_sock, "ERROR : Invalid HMAC", BUFFSIZE, 0);
       removeClient(data, new_sock);
+      log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication");
       close(new_sock);
       continue;
     }   
@@ -145,6 +158,7 @@ void* threadTarget(void* sdata) {
 
            case QUIT:
              printf("Stopping server...\n");
+	     log_msg(LOG_INFO,"The client \"%s\" has stoped the server.",username);
              quit(data);
              break; // Never reached but for good practice
            default :
