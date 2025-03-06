@@ -105,8 +105,6 @@ void* threadTarget(void* sdata) {
     send(new_sock, challenge->rand, 64, 0);
     sleep(1);
     result = getmsg(new_sock);
-    printf("Client HMAC: ");
-    print_hex(result, SHA256_DIGEST_LENGTH);
 
     // Server verification
     if (CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) == 0) {
