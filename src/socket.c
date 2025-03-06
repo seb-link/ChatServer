@@ -58,6 +58,7 @@ int getconn(t_data *socks) {
     if (socks->clients[i]->u == false) {
       socks->clients[i]->u = true;
       socks->clients[i]->sock = new_sock;
+      socks->clients[i]->username = NULL;
       alloc = true;
       break;
     }

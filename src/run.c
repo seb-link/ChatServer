@@ -18,7 +18,7 @@ void run(void) {
   Client null;
   null.u = false;
   null.sock = 0;
-  null.username = "";
+  null.username = NULL;
 
   pthread_mutex_init(&data_mutex, NULL);
   pthread_mutex_init(&server_mutex, NULL);
@@ -41,6 +41,7 @@ void run(void) {
     clients[i] = null;
     pthread_create(&threads[i], NULL, threadTarget, &data);
   }
+  
   
 
   printf("Listening of port : %d...\n",PORT);
@@ -76,7 +77,6 @@ void* threadTarget(void* sdata) {
 
     char *username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
-    printf("DEBUG : \"%s\"\n",username);
     if (!username) 
       continue;
     

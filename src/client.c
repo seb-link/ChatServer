@@ -41,15 +41,16 @@ char* getusername(t_data* data, int sock) {
   bool duplicate = false;
   pthread_mutex_lock(data->data_mutex);
   for(int i = 0; i < MAXCLIENT; i++) {
-    if(data->clients[i]->u) {
-      if (strcmp(data->clients[i]->username, clean_name) == 0) {
-        duplicate = true;
-        break;
+    if(data->clients[i]->u) {                                  // Is it used ?
+      if (data->clients[i]->username) {                        // Is the username non-null ?
+        if (!strcmp(data->clients[i]->username, clean_name)) { // Is is it a duplicate ?
+	  duplicate = true;
+	  break;
+        } 
       }
-    }
+    } 
   }
   pthread_mutex_unlock(data->data_mutex);
-  printf("Finished searching\n");
 
   if (duplicate) {
     send(sock, "ERROR: Username already taken\n", 30, 0);
@@ -66,6 +67,10 @@ void removeClient(t_data *data, int sock) {
   for (int i = 0; i < MAXCLIENT; i++) {
     if (data->clients[i]->sock == sock && data->clients[i]->u == true) {
       data->clients[i]->u = false;
+      if (data->clients[i]->username) {
+	free(data->clients[i]->username);
+        data->clients[i]->username = NULL;
+      }
     }
   }
   pthread_mutex_unlock(data->data_mutex);
