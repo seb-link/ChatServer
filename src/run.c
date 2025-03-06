@@ -112,16 +112,10 @@ void* threadTarget(void* sdata) {
     } else {
       printf("Client %s : Authentication failed!\n", username);
       send(new_sock, "ERROR : Invalid HMAC", BUFFSIZE, 0);
+      removeClient(data, new_sock);
       close(new_sock);
       continue;
-    }
-
-    if (strcmp(result, challenge->hash) != 0) {
-      send(new_sock, "Cloudn't identify client", BUFFSIZE, 0); 
-      close(new_sock);
-      continue;
-    }
-
+    }   
 
     printf("New client : %s\n",username);
     while (running) {
@@ -131,11 +125,14 @@ void* threadTarget(void* sdata) {
         broadcast(data, msg, username);
         if (strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
-            case CLI_EXIT:
+	    case 25 :
+	      printf("what");
+	    case CLI_EXIT:
               free(msg);
               close(new_sock);
               printf("Client Exited.\n");
-              continue;
+              running = false; // Client exited so bye bye
+	      continue;
               break; // Never reached but for good practice
 
             case KICK_NOTFOUND :

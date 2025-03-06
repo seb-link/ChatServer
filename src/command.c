@@ -26,11 +26,11 @@ int parcmd(char** msg,t_data *data) {
   current = strtok(*msg," ");
   if (!in(commands, CMD_NUM, *msg)) return CMD_INVALID;
   // No args commands
-  if (strcmp(current, "/exit")) return CLI_EXIT;
-  if (strcmp(current, "/stop")) return QUIT;
-  if (strcmp(current, "/kick")) command = "kick";
+  if (!strcmp(current, "/exit")) return CLI_EXIT;
+  if (!strcmp(current, "/stop")) return QUIT;
+  if (!strcmp(current, "/kick")) command = "kick";
   current = strtok(*msg," ");
   // first arg
-  if (strcmp(command, "kick")) return kick(current, data);
-  return EXIT_SUCCESS;  
+  if (!strcmp(command, "kick")) return kick(current, data);
+  return EXIT_FAILURE;  
 }
