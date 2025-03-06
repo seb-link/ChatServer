@@ -2,8 +2,8 @@
 #include "client.h"
 
 char* trim_whitespace(char* str);
-const size_t  banned_username_len =  1;
-const char   *banned_username[]   =  {"ERROR"};
+const size_t  banned_username_len =  2;
+const char   *banned_username[]   =  {"ERROR","WARN"};
 
 // Get Client username
 char* getusername(t_data* data, int sock) {

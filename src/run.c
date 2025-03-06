@@ -121,30 +121,39 @@ void* threadTarget(void* sdata) {
     while (running) {
       msg = getmsg(new_sock);
       if (msg != 0) {
-        printf("%s : %s\n", username, msg);
-        broadcast(data, msg, username);
         if (strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
-	    case CLI_EXIT:
-              free(msg);
-              close(new_sock);
-              printf("Client Exited.\n");
-              running = false; // Client exited so bye bye
-	      continue;
-              break; // Never reached but for good practice
+	   case CMD_INVALID :
+	     send(new_sock, "WARN : Command not found", BUFFSIZE, 0);
+             break;
 
-            case KICK_NOTFOUND :
-              send(new_sock, "ERROR : user not found", BUFFSIZE, 0);
-              break;
+	   case CMD_SYNTAX_ERR :
+	     send(new_sock, "WARN : Command syntax invalid", BUFFSIZE, 0);
+	     break; 
 
-            case QUIT:
-              printf("Stopping server...\n");
-              quit(data);
-              break; // Never reached but for good practice
-            default :
-              break;
+	   case CLI_EXIT:
+             free(msg);
+             close(new_sock);
+             printf("Client Exited.\n");
+             running = false; // Client exited so bye bye
+	     continue;
+             break; // Never reached but for good practice
+
+           case KICK_NOTFOUND :
+             send(new_sock, "WARN: user not found", BUFFSIZE, 0);
+             break;
+
+           case QUIT:
+             printf("Stopping server...\n");
+             quit(data);
+             break; // Never reached but for good practice
+           default :
+             break;
           } // switch -> command output
-        } // if (strcmp(...)) -> if it's a command
+        }else { // if (strcmp(...)) -> if it's a command
+	  printf("%s : %s\n", username, msg);
+          broadcast(data, msg, username); 
+	} 
       } // if (msg != 0) -> if there is a msg
       free(msg);
     } // while (running) -> while connection alive
