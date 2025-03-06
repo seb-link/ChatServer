@@ -30,10 +30,10 @@ challenge* generate_challenge() {
   size_t key_len = strlen(sharkey);
 
   // Server generates random challenge (64 bytes)
-  static unsigned char random[64] = { 0 };
-  get_random_bytes(&random,64);
+  static unsigned char random[RAND_LEN] = { 0 };
+  get_random_bytes(&random,RAND_LEN);
   // Server computes HMAC-SHA256
-  unsigned char* server_hmac = malloc(SHA256_DIGEST_LENGTH);
+  unsigned char* server_hmac   = malloc(SHA256_DIGEST_LENGTH);
   unsigned int   hmac_len      = SHA256_DIGEST_LENGTH;
   bzero(server_hmac, hmac_len);
 
@@ -88,6 +88,7 @@ int get_random_bytes(unsigned char **buffer, size_t length) {
   }
 
   if (result != (signed long) length) {
+    fprintf(stderr, "Hmm, Strange error occured cloudn't generate rand bytes i belive");
     free(*buffer);
     close(fd);
     return -1;

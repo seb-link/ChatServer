@@ -9,9 +9,10 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#define RAND_LEN 64
 
 typedef struct {
-  unsigned char (*rand)[64];
+  unsigned char (*rand)[RAND_LEN];
   unsigned char* hash;
 } challenge;
 

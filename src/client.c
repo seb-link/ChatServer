@@ -24,7 +24,7 @@ char* getusername(t_data* data, int sock) {
     removeClient(data, sock);
     return NULL; // Failed
   }
-  for (int i = 0; i < banned_username_len; i++) {
+  for (size_t i = 0; i < banned_username_len; i++) {
     if (strcmp(clean_name, banned_username[i]) == 0) {
       send(sock, "ERROR: Invalid username", BUFFSIZE, 0);
       close(sock);
@@ -72,11 +72,12 @@ void removeClient(t_data *data, int sock) {
 }
 
 void broadcast(t_data *data, char* msg,char* username) {
-  sprintf(msg, "%s : %s", username, msg);
+  char* smsg = malloc(sizeof(username) + sizeof(msg) + 5); // message to send
+  sprintf(smsg, "%s : %s", username, msg);
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i<MAXCLIENT; i++) {
     if (data->clients[i]->u == true) {
-      send(data->clients[i]->sock, msg, strlen(msg), 0); // idk why 0
+      send(data->clients[i]->sock, smsg, strlen(msg), 0); // idk why 0
     }
   }
   pthread_mutex_unlock(data->data_mutex);

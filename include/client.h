@@ -5,8 +5,8 @@
 
 #define MAXNAMSIZE 20
 
-const extern char   *banned_username[];
-const extern size_t banned_username_len;
+extern const char   *banned_username[];
+extern const size_t banned_username_len;
 
 char* getmsg         (int sock);
 void  broadcast      (t_data *data, char* msg, char* username);
