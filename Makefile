@@ -37,4 +37,4 @@ $(TEST_BINS): $(BIN_DIR)/%: $(TST_DIR)/%.c $(filter-out $(OBJ_DIR)/main.o, $(OBJ
 tests: $(TEST_BINS)
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(TARGET)
+	rm -rf $(OBJ_DIR) $(BIN_DIR) $(TARGET) core*
