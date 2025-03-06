@@ -125,8 +125,6 @@ void* threadTarget(void* sdata) {
         broadcast(data, msg, username);
         if (strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
-	    case 25 :
-	      printf("what");
 	    case CLI_EXIT:
               free(msg);
               close(new_sock);
