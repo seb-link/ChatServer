@@ -99,8 +99,10 @@ void* threadTarget(void* sdata) {
 
     char *username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
-    if (!username) 
+    if (!username) { 
+      free(username);
       continue; // Connection closed in getusername
+    }
     pthread_mutex_lock(data->data_mutex);
     for(int i = 0; i < MAXCLIENT; i++) {
       if(data->clients[i]->sock == new_sock) {
@@ -136,6 +138,7 @@ void* threadTarget(void* sdata) {
     // Server verification
     if (CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) == 0) {
       printf("Authentication successful!\n");
+      log_msg(LOG_INFO, "[Auth] Client \"%s\" has successfully authenticated", username);
     } else {
       printf("Client %s : Authentication failed!\n", username);
       send(new_sock, "ERROR : Invalid HMAC", BUFFSIZE, 0);

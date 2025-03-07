@@ -14,6 +14,8 @@ int log_init(const char* filename) {
     perror("fopen");
     return EXIT_FAILURE;
   }
+  fprintf(log_file, "\n");
+  fflush(log_file);
   return EXIT_SUCCESS;
 }
 
