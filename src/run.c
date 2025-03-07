@@ -124,7 +124,12 @@ void* threadTarget(void* sdata) {
       log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
       continue;
     }
-    send(new_sock, challenge->rand, 64, 0);
+    if(msgsend(new_sock, (char* )challenge->rand)) {
+      log_msg(LOG_ERROR, "Cloud not send challenge to client");
+      close(new_sock);
+      removeClient(data, new_sock);
+      continue;
+    } 
     sleep(1);
     result = getmsg(new_sock);
 
@@ -147,11 +152,19 @@ void* threadTarget(void* sdata) {
         if (!strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
 	   case CMD_INVALID :
-	     send(new_sock, "WARN : Command not found", BUFFSIZE, 0);
+	     if(msgsend(new_sock, (char* )"WARN : Command not found")) {
+	       log_msg(LOG_ERROR, "Error sending message to client");
+	       running = false;
+	       continue; // Will close socket and remove client
+	     }
              break;
 
 	   case CMD_SYNTAX_ERR :
-	     send(new_sock, "WARN : Command syntax invalid", BUFFSIZE, 0);
+	     if(msgsend(new_sock, (char* )"WARN : Command syntax invalid")) {
+	       log_msg(LOG_ERROR, "Error sending message to client");
+	       running = false;
+	       continue; // Will close socket and remove client
+	     }
 	     break; 
 
 	   case CLI_EXIT:
@@ -163,7 +176,11 @@ void* threadTarget(void* sdata) {
              break; // Never reached but for good practice
 
            case KICK_NOTFOUND :
-             send(new_sock, "WARN: user not found", BUFFSIZE, 0);
+             if(msgsend(new_sock, (char* )"WARN: user not found")) {
+	       log_msg(LOG_ERROR, "Error sending message to client");
+	       running = false;
+	       continue; // will close socket and remove client
+	     }
              break;
 
            case QUIT:

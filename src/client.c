@@ -89,6 +89,15 @@ void broadcast(t_data *data, char* msg,char* username) {
   return;
 }
 
+int msgsend(int sock, char* msg) {
+  int s = send(sock, msg, BUFFSIZE, 0);
+  if (s < 0) {
+    perror("send");
+    return 1;
+  }
+  return 0;
+}
+
 char *getmsg(int sock) {
   char *msg = malloc(BUFFSIZE);
   if (!msg) {
