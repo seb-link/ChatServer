@@ -2,16 +2,20 @@
 #include "hcommand.h"
 #include "socket.h"
 #include "client.h"
+#include "log.h"
 
 int kick(char *username,t_data *data) {
   char *msg = malloc(BUFFSIZE);
-  if (!msg) 
+  if (!msg) {
+    perror("malloc");
+    log_msg(LOG_FATAL, "Cloud not allocate memory using malloc when calling the kick function");
     quit(data);
+  }
   sprintf(msg, "%s just got kicked !", username);
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
     if (data->clients[i]->u && strcmp(data->clients[i]->username, username) == 0) {
-      send(data->clients[i]->sock, "You were kicked",BUFFSIZE,0);
+      msgsend(data->clients[i]->sock, "You were kicked");
       close(data->clients[i]->sock);
       broadcast(data,msg,username);
       return 0;

@@ -154,54 +154,54 @@ void* threadTarget(void* sdata) {
       if (msg != NULL) {
         if (!strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
-	   case CMD_INVALID :
-	     if(msgsend(new_sock, (char* )"WARN : Command not found")) {
-	       log_msg(LOG_ERROR, "Error sending message to client");
-	       running = false;
-	       continue; // Will close socket and remove client
-	     }
-             break;
+            case CMD_INVALID :
+              if(msgsend(new_sock, (char* )"WARN : Command not found")) {
+                log_msg(LOG_ERROR, "Error sending message to client");
+                running = false;
+                continue; // Will close socket and remove client
+              }
+              break;
 
-	   case CMD_SYNTAX_ERR :
-	     if(msgsend(new_sock, (char* )"WARN : Command syntax invalid")) {
-	       log_msg(LOG_ERROR, "Error sending message to client");
-	       running = false;
-	       continue; // Will close socket and remove client
-	     }
-	     break; 
+            case CMD_SYNTAX_ERR :
+              if(msgsend(new_sock, (char* )"WARN : Command syntax invalid")) {
+                log_msg(LOG_ERROR, "Error sending message to client");
+                running = false;
+                continue; // Will close socket and remove client
+              }
+              break; 
 
-	   case CLI_EXIT:
-             free(msg);
-             close(new_sock);
-             printf("Client Exited.\n");
-             running = false; // Client exited so bye bye
-	     continue;
-             break; // Never reached but for good practice
+            case CLI_EXIT:
+              free(msg);
+              close(new_sock);
+              printf("Client Exited.\n");
+              running = false; // Client exited so bye bye
+              continue;
+              break; // Never reached but for good practice
 
-           case KICK_NOTFOUND :
-             if(msgsend(new_sock, (char* )"WARN: user not found")) {
-	       log_msg(LOG_ERROR, "Error sending message to client");
-	       running = false;
-	       continue; // will close socket and remove client
-	     }
-             break;
+            case KICK_NOTFOUND :
+              if(msgsend(new_sock, (char* )"WARN: user not found")) {
+                log_msg(LOG_ERROR, "Error sending message to client");
+                running = false;
+                continue; // will close socket and remove client
+              }
+              break;
 
-           case QUIT:
-             printf("Stopping server...\n");
-	     log_msg(LOG_INFO,"The client \"%s\" has stoped the server.",username);
-             quit(data);
-             break; // Never reached but for good practice
-           default :
-             break;
+            case QUIT:
+              printf("Stopping server...\n");
+              log_msg(LOG_INFO,"The client \"%s\" has stoped the server.",username);
+              quit(data);
+              break; // Never reached but for good practice
+            default :
+              break;
           } // switch -> command output
         } else { // if (strcmp(...)) -> if it's a command
-	  printf("%s : %s\n", username, msg);
+          printf("%s : %s\n", username, msg);
           broadcast(data, msg, username); 
-	} 
+        } 
       } /* if (msg != NULL) -> if there were no error */ else if (msg != 0) {
         log_msg(LOG_ERROR, "Client broke connection");
-	running = false;
-	continue; // Will close the socket
+        running = false;
+        continue; // Will close the socket
       } // If msg = 0 then no msg was received
     } // while (running) -> while connection alive
     close(new_sock);
