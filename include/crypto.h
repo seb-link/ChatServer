@@ -20,5 +20,6 @@ extern char* sharkey;  // Declare sharkey as extern
 
 int        crypto_init        (void);
 challenge* generate_challenge (void);
+int        get_random_bytes   (unsigned char **buffer, size_t length);
 
 #endif // CRYPTO_H
