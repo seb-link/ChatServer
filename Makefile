@@ -1,7 +1,8 @@
 CC         = gcc
 CFLAGS     = -Wall -Wextra -Wpedantic -Iinclude -std=c17 -ggdb
 LDFLAGS    = -lssl -lcrypto
-CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign -Wno-unused-command-line-argument
+# CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign -Wno-unused-command-line-argument
+CWARNFLAGS = 
 
 TST_DIR = tests/src
 SRC_DIR = src

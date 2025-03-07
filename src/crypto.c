@@ -27,7 +27,6 @@ challenge* generate_challenge(void) {
   static challenge result;
   result.hash = NULL;
   result.rand = NULL;
-  size_t key_len = strlen(sharkey);
 
   // Server generates random challenge (64 bytes)
   static unsigned char random[RAND_LEN] = { 0 };
@@ -50,6 +49,10 @@ challenge* generate_challenge(void) {
   );
   if (server_hmac == 0) {
     fprintf(stderr, "HMAC computation failed!\n");
+    return NULL;
+  }
+  if (!hmac) {
+    perror("HMAC");
     return NULL;
   }
 
