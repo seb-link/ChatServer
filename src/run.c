@@ -77,8 +77,19 @@ void* threadTarget(void* sdata) {
       log_msg(LOG_FATAL, "Cloud not get connections");
       quit(data);
     }
-
+    
+    char ipstr[INET_ADDRSTRLEN];
+    if (getpeername(new_sock, (struct sockaddr*)&address, &addrlen) != 0) {
+      perror("getpeername");
+      log_msg(LOG_ERROR, "Cloud not call getpeername()");
+      close(new_sock);
+      continue;
+    }
+    struct sockaddr_in* addr = (struct sockaddr_in*)&address;
+    struct in_addr inaddr = addr->sin_addr;
+    inet_ntop(AF_INET, &inaddr, ipstr, INET_ADDRSTRLEN);
     printf("Got connection !\n");
+    log_msg(LOG_INFO, "Got connection from %s", ipstr);
     char* msg = malloc(sizeof(char) * BUFFSIZE);
     if (!msg) {
       perror("malloc");
@@ -89,8 +100,7 @@ void* threadTarget(void* sdata) {
     char *username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
     if (!username) 
-      continue;
-    
+      continue; // Connection closed in getusername
     pthread_mutex_lock(data->data_mutex);
     for(int i = 0; i < MAXCLIENT; i++) {
       if(data->clients[i]->sock == new_sock) {
@@ -133,8 +143,8 @@ void* threadTarget(void* sdata) {
     printf("New client : %s\n",username);
     while (running) {
       msg = getmsg(new_sock);
-      if (msg != 0) {
-        if (strcmp(&msg[0],"/")) {
+      if (msg != NULL) {
+        if (!strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
 	   case CMD_INVALID :
 	     send(new_sock, "WARN : Command not found", BUFFSIZE, 0);
@@ -164,14 +174,19 @@ void* threadTarget(void* sdata) {
            default :
              break;
           } // switch -> command output
-        }else { // if (strcmp(...)) -> if it's a command
+        } else { // if (strcmp(...)) -> if it's a command
 	  printf("%s : %s\n", username, msg);
           broadcast(data, msg, username); 
 	} 
-      } // if (msg != 0) -> if there is a msg
-      free(msg);
+      } /* if (msg != NULL) -> if there were no error */ else if (msg != 0) {
+        log_msg(LOG_ERROR, "Client broke connection");
+	running = false;
+	continue; // Will close the socket
+      } // If msg = 0 then no msg was received
     } // while (running) -> while connection alive
     close(new_sock);
+    removeClient(data, new_sock);
+    log_msg(LOG_INFO, "Client %s disconnected", username);
   } // while (true)
   return (void*) (intptr_t) exitcode;
 }
