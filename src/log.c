@@ -20,7 +20,7 @@ int log_init(const char* filename) {
 }
 
 
-void log_close() {
+void log_close(void) {
   if (log_file) {
     fclose(log_file);
   }

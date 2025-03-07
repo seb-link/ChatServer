@@ -23,7 +23,7 @@ int crypto_init(void) {
   return 0;
 }
 
-challenge* generate_challenge() {
+challenge* generate_challenge(void) {
   static challenge result;
   result.hash = NULL;
   result.rand = NULL;

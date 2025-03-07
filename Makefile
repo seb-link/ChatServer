@@ -1,5 +1,5 @@
 CC         = gcc
-CFLAGS     = -Wall -Wextra -Iinclude -std=c17 -ggdb
+CFLAGS     = -Wall -Wextra -Wpedantic -Iinclude -std=c17 -ggdb
 LDFLAGS    = -lssl -lcrypto
 CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign -Wno-unused-command-line-argument
 
