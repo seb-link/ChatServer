@@ -1,10 +1,9 @@
 CC         = gcc
 CFLAGS     = -Wall -Wextra -Wpedantic -Iinclude -std=c17 -ggdb
 LDFLAGS    = -lssl -lcrypto
-# CWARNFLAGS = -Wno-unused-variable -Wno-pointer-sign -Wno-unused-command-line-argument
-CWARNFLAGS = 
+CWARNFLAGS = -Wno-unused-variable
 
-TST_DIR = tests/src
+DST_DIR = tests/src
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = tests/bin

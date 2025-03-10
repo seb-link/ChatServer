@@ -1,4 +1,5 @@
 #include "common.h"
+#include "log.h"
 
 // Helper function to convert binary to hex string
 void print_hex(const unsigned char *data, size_t len) {
@@ -18,6 +19,7 @@ int in(char* arr[], ssize_t size, const char* target) {
 }
 
 void quit(t_data* data) {
+  log_close();
   data->reqshut = true;
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i< MAXCLIENT; i++) {
