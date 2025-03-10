@@ -15,7 +15,7 @@ int kick(char *username,t_data *data) {
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
     if (data->clients[i]->u && strcmp(data->clients[i]->username, username) == 0) {
-      msgsend(data->clients[i]->sock, "You were kicked");
+      msgsend(data->clients[i]->sock, "You were kicked", Status_ERROR_KICKED);
       close(data->clients[i]->sock);
       broadcast(data,msg,username);
       return 0;

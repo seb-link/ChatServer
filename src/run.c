@@ -121,12 +121,12 @@ void* threadTarget(void* sdata) {
     challenge = generate_challenge();
     if (!challenge) { 
       printf("ERROR : Cloud not generate challenge ! Dropping connection...\n");
-      send(new_sock, "ERROR : Server side problem !", BUFFSIZE, 0);
+      (void) msgsend(new_sock, "ERROR : Server side problem !", Status_ERROR);
       close(new_sock);
       log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
       continue;
     }
-    if(msgsend(new_sock, (char* )challenge->rand)) {
+    if(msgsend(new_sock, (char* )challenge->rand, Status_SUCCESS)) {
       log_msg(LOG_ERROR, "Cloud not send challenge to client");
       close(new_sock);
       removeClient(data, new_sock);
@@ -139,9 +139,13 @@ void* threadTarget(void* sdata) {
     if (CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) == 0) {
       printf("Authentication successful!\n");
       log_msg(LOG_INFO, "[Auth] Client \"%s\" has successfully authenticated", username);
+      if (msgsend(new_sock, "Authentication successful !", Status_SUCCESS)) {
+        close(new_sock);
+        continue;
+      }
     } else {
       printf("Client %s : Authentication failed!\n", username);
-      send(new_sock, "ERROR : Invalid HMAC", BUFFSIZE, 0);
+      (void) msgsend(new_sock, "ERROR : Invalid HMAC", Status_ERROR);
       removeClient(data, new_sock);
       log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication");
       close(new_sock);
@@ -155,7 +159,7 @@ void* threadTarget(void* sdata) {
         if (!strcmp(&msg[0],"/")) {
           switch(parcmd(&msg,data)) {
             case CMD_INVALID :
-              if(msgsend(new_sock, (char* )"WARN : Command not found")) {
+              if(msgsend(new_sock, (char* )"WARN  : Command not found", Status_WARNING)) {
                 log_msg(LOG_ERROR, "Error sending message to client");
                 running = false;
                 continue; // Will close socket and remove client
@@ -163,7 +167,7 @@ void* threadTarget(void* sdata) {
               break;
 
             case CMD_SYNTAX_ERR :
-              if(msgsend(new_sock, (char* )"WARN : Command syntax invalid")) {
+              if(msgsend(new_sock, (char* )"WARN  : Command syntax invalid", Status_WARNING)) {
                 log_msg(LOG_ERROR, "Error sending message to client");
                 running = false;
                 continue; // Will close socket and remove client
@@ -179,7 +183,7 @@ void* threadTarget(void* sdata) {
               break; // Never reached but for good practice
 
             case KICK_NOTFOUND :
-              if(msgsend(new_sock, (char* )"WARN: user not found")) {
+              if(msgsend(new_sock, (char* )" WARN  : user not found", Status_WARNING)) {
                 log_msg(LOG_ERROR, "Error sending message to client");
                 running = false;
                 continue; // will close socket and remove client

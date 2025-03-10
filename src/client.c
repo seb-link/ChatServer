@@ -1,6 +1,13 @@
 #include "common.h"
 #include "client.h"
 
+uint8_t status_codes[] = {
+  0,   // SUCCESS
+  100, // WARNING
+  200, // ERROR
+  201  // KICK_ERROR
+};
+
 char* trim_whitespace(char* str);
 const size_t  banned_username_len =  3;
 const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
@@ -89,7 +96,12 @@ void broadcast(t_data *data, char* msg,char* username) {
   return;
 }
 
-int msgsend(int sock, char* msg) {
+int msgsend(int sock, char* msg, Status status_code) {
+  int a = send(sock, status_codes[status_code], sizeof(uint8_t), 0);
+  if (a < 0) {
+    perror("send");
+    return 1;
+  }
   int s = send(sock, msg, BUFFSIZE, 0);
   if (s < 0) {
     perror("send");
