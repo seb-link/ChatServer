@@ -1,5 +1,6 @@
 #include "common.h"
 #include "client.h"
+#include "log.h"
 
 uint8_t status_codes[] = {
   0,   // SUCCESS
@@ -20,6 +21,7 @@ char* getusername(t_data* data, int sock) {
     printf("Connection closed before username received\n");
     close(sock);
     removeClient(data, sock);
+    log_msg(LOG_ERROR, "Client closed connection without sending a username");
     return NULL; // Failed
   }
   char* clean_name = trim_whitespace(username);
@@ -97,7 +99,7 @@ void broadcast(t_data *data, char* msg,char* username) {
 }
 
 int msgsend(int sock, char* msg, Status status_code) {
-  int a = send(sock, status_codes[status_code], sizeof(uint8_t), 0);
+  int a = send(sock, &status_codes[status_code], sizeof(uint8_t), 0);
   if (a < 0) {
     perror("send");
     return 1;

@@ -12,7 +12,7 @@
 #include <time.h>
 
 #define MAXCLIENT 2
-#define PORT      8080
+#define PORT      8090
 
 #include "socket.h"
 
