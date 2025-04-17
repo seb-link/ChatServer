@@ -12,7 +12,7 @@
 #define RAND_LEN 64
 
 typedef struct {
-  unsigned char (*rand)[RAND_LEN];
+  unsigned char *rand;
   unsigned char* hash;
 } challenge;
 

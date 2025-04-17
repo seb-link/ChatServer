@@ -112,9 +112,6 @@ void* threadTarget(void* sdata) {
     }
     pthread_mutex_unlock(data->data_mutex);
 
-    // Server authentication
-    
-
     // Client authentication
     challenge* challenge;
     char *result;
@@ -124,12 +121,16 @@ void* threadTarget(void* sdata) {
       (void) msgsend(new_sock, "ERROR : Server side problem !", Status_ERROR);
       close(new_sock);
       log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
+      free(username);
+      free(msg);
       continue;
     }
     if(msgsend(new_sock, (char* )challenge->rand, Status_SUCCESS)) {
       log_msg(LOG_ERROR, "Cloud not send challenge to client");
       close(new_sock);
       removeClient(data, new_sock);
+      free(username);
+      free(msg);
       continue;
     } 
     sleep(1);

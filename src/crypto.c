@@ -1,5 +1,9 @@
+#include "passgen/common.h"
+#include "passgen/password.h"
+
 #include "common.h"
 #include "crypto.h"
+
 
 char* sharkey = NULL;
 
@@ -29,8 +33,10 @@ challenge* generate_challenge(void) {
   result.rand = NULL;
 
   // Server generates random challenge (64 bytes)
-  static unsigned char random[RAND_LEN] = { 0 };
-  get_random_bytes(&random,RAND_LEN);
+  static unsigned char *random;
+  charset_t charset = 7; // 7 = 0111
+  random = generate_password(charset, RAND_LEN);
+  
   // Server computes HMAC-SHA256
   unsigned char* server_hmac   = malloc(SHA256_DIGEST_LENGTH);
   unsigned int   hmac_len      = SHA256_DIGEST_LENGTH;
@@ -57,46 +63,8 @@ challenge* generate_challenge(void) {
   }
 
   result.hash = server_hmac;
-  result.rand = &random;
+  result.rand = random;
   return &result;
 }
 
 
-// Generate cryptographically secure random bytes
-int get_random_bytes(unsigned char **buffer, size_t length) {
-  *buffer = malloc(length);
-  if (*buffer == NULL) {
-      perror("malloc");
-      return -1;
-  }
-
-  int fd = open("/dev/urandom", O_RDONLY);
-  if (fd == -1) {
-      perror("open");
-      free(*buffer);
-      return -1;
-  }
-
-  ssize_t result = read(fd, *buffer, length);
-  if (result == -1) {
-       perror("read");
-       close(fd);
-       free(*buffer);
-       return -1;
-  } else if (result == 0) {
-    fprintf(stderr, "Unexpected EOF reading /dev/urandom\n");
-    close(fd);
-    free(*buffer);
-    return -1;
-  }
-
-  if (result != (signed long) length) {
-    fprintf(stderr, "Hmm, Strange error occured cloudn't generate rand bytes i belive");
-    free(*buffer);
-    close(fd);
-    return -1;
-  }
-  
-  close(fd);
-  return 0;
-}

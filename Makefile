@@ -1,6 +1,6 @@
 CC         = gcc
 CFLAGS     = -Wall -Wextra -Wpedantic -Iinclude -std=c17 -ggdb
-LDFLAGS    = -lssl -lcrypto
+LDFLAGS    = -lssl -lcrypto -lm
 CWARNFLAGS = -Wno-unused-variable
 
 DST_DIR = tests/src

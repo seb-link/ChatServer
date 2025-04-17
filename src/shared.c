@@ -1,4 +1,5 @@
 #include "common.h"
+#include "client.h"
 #include "log.h"
 
 // Helper function to convert binary to hex string
@@ -24,7 +25,7 @@ void quit(t_data* data) {
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i< MAXCLIENT; i++) {
     if (data->clients[i]->u == true) {
-      send(data->clients[i]->sock, "ERROR : The server is shutting down", BUFFSIZE, 0);
+      msgsend(data->clients[i]->sock, "ERROR : The server is shutting down", Status_ERROR);
       close(data->clients[i]->sock);
     }
     // Not technically required but idc

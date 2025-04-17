@@ -27,7 +27,7 @@ char* getusername(t_data* data, int sock) {
   char* clean_name = trim_whitespace(username);
   if(strlen(clean_name) == 0) {
     printf("Empty username received\n");
-    send(sock, "ERROR: Username cannot be empty\n", BUFFSIZE, 0);
+    msgsend(sock, "ERROR: Username cannot be empty\n", Status_ERROR);
     free(username);
     close(sock);
     removeClient(data, sock);
@@ -35,14 +35,14 @@ char* getusername(t_data* data, int sock) {
   }
   for (size_t i = 0; i < banned_username_len; i++) {
     if (strcmp(clean_name, banned_username[i]) == 0) {
-      send(sock, "ERROR: Invalid username", BUFFSIZE, 0);
+      msgsend(sock, "ERROR: Invalid username", Status_ERROR);
       close(sock);
       return NULL;
     }
   }
 
   if (check_username(clean_name)) {
-    send(sock, "ERROR: Username can only contain letters and numbers.", BUFFSIZE, 0);
+    msgsend(sock, "ERROR: Username can only contain letters and numbers.", Status_ERROR);
     close(sock);
     return NULL;
   }
@@ -62,7 +62,7 @@ char* getusername(t_data* data, int sock) {
   pthread_mutex_unlock(data->data_mutex);
 
   if (duplicate) {
-    send(sock, "ERROR: Username already taken\n", 30, 0);
+    msgsend(sock, "ERROR: Username already taken\n", Status_ERROR);
     free(username);
     close(sock);
     removeClient(data, sock);
@@ -91,7 +91,7 @@ void broadcast(t_data *data, char* msg,char* username) {
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i<MAXCLIENT; i++) {
     if (data->clients[i]->u == true) {
-      send(data->clients[i]->sock, smsg, strlen(msg), 0); // idk why 0
+      msgsend(data->clients[i]->sock, smsg, Status_SUCCESS); // idk why 0
     }
   }
   pthread_mutex_unlock(data->data_mutex);
@@ -104,7 +104,7 @@ int msgsend(int sock, char* msg, Status status_code) {
     perror("send");
     return 1;
   }
-  int s = send(sock, msg, BUFFSIZE, 0);
+  int s = send(sock, msg, strlen(msg), 0);
   if (s < 0) {
     perror("send");
     return 1;
