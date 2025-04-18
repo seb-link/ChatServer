@@ -77,6 +77,7 @@ void removeClient(t_data *data, int sock) {
     if (data->clients[i]->sock == sock && data->clients[i]->u == true) {
       data->clients[i]->u = false;
       if (data->clients[i]->username) {
+	printf("Client %s Disconnected !\n", data->clients[i]->username);
 	free(data->clients[i]->username);
         data->clients[i]->username = NULL;
       }
@@ -91,7 +92,9 @@ void broadcast(t_data *data, char* msg,char* username) {
   pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i<MAXCLIENT; i++) {
     if (data->clients[i]->u == true) {
-      msgsend(data->clients[i]->sock, smsg, Status_SUCCESS); // idk why 0
+      if (msgsend(data->clients[i]->sock, smsg, Status_SUCCESS) != 0) {
+        removeClient(data, data->clients[i]->sock);
+      }
     }
   }
   pthread_mutex_unlock(data->data_mutex);
