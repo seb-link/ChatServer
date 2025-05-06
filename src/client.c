@@ -122,7 +122,7 @@ void broadcast(t_data *data, char *msg, char *username) {
 }
 
 int msgsend(int sock, char* msg, Status status_code) {
-  int status_code_status, msg_status = 0;
+  ssize_t status_code_status, msg_status = 0;
 
   status_code_status = send(sock, &status_codes[status_code], sizeof(uint8_t), 0);
   if (status_code_status < 0) {
@@ -142,7 +142,7 @@ int msgsend(int sock, char* msg, Status status_code) {
 
 char *getmsg(int sock) {
   char    *msg;
-  ssize_t recv_status = 0;
+  ssize_t bytes_recv = 0;
 
   msg = malloc(BUFFSIZE);        
   if (!msg) {
@@ -150,18 +150,18 @@ char *getmsg(int sock) {
       return NULL;
   }
 
-  recv_status = recv(sock, msg, BUFFSIZE - 1,0);
-  if (recv_status < 0) {
+  bytes_recv = recv(sock, msg, BUFFSIZE - 1, 0);
+  if (bytes_recv < 0) {
     perror("read");
     free(msg);
     return NULL;
   }
   
-  if (recv_status == 0) {
+  if (bytes_recv == 0) {
     return 0;
   }
 
-  msg[recv_status] = '\0';
+  msg[bytes_recv] = '\0';
   
   return msg;
 }
