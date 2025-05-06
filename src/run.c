@@ -13,13 +13,9 @@ void run(void) {
   t_data data;
   pthread_mutex_t data_mutex;
   pthread_mutex_t server_mutex;
-  pthread_t threads[MAXCLIENT];
-  Client clients[MAXCLIENT];
-  Client (*Pclients)[MAXCLIENT] = &clients;
-  Client null;
-  null.u = false;
-  null.sock = 0;
-  null.username = NULL;
+  pthread_t threads[MAXCLIENTS];
+  Client clients[MAXCLIENTS];
+  Client (*Pclients)[MAXCLIENTS] = &clients;
   size_t i = 0; 
 
   pthread_mutex_init(&data_mutex, NULL);
@@ -46,18 +42,16 @@ void run(void) {
 
   printf("Finished initializing.\n");
 
-  for (i = 0; i< MAXCLIENT; i++) {
-    clients[i] = null;
-  }
+  memset(clients, 0, MAXCLIENTS * sizeof(Client));
 
-  for (i = 0; i < MAXCLIENT; i++) {
+  for (i = 0; i < MAXCLIENTS; i++) {
     pthread_create(&threads[i], NULL, threadTarget, &data);
   }
 
   printf("Listening of port : %d...\n",PORT);
   log_msg(LOG_INFO, "Server started and is listening on port %d",PORT);
   
-  for (i = 0; i < MAXCLIENT; i++) {
+  for (i = 0; i < MAXCLIENTS; i++) {
     pthread_join(threads[i], 0);
   }
 
@@ -115,7 +109,7 @@ void *threadTarget(void* sdata) {
       continue; // Connection closed in getusername
     }
     pthread_mutex_lock(data->data_mutex);
-    for(int i = 0; i < MAXCLIENT; i++) {
+    for(int i = 0; i < MAXCLIENTS; i++) {
       if(data->clients[i]->sock == new_sock) {
         data->clients[i]->username = strdupli(username);
         break;

@@ -11,8 +11,6 @@
 
 char* sharkey = NULL;
 
-int get_random_bytes(unsigned char **buffer, size_t length);
-
 // read key
 int crypto_init(void) {
   FILE *file = NULL;
@@ -39,7 +37,7 @@ int crypto_init(void) {
   return EXIT_SUCCESS;
 }
 
-challenge* generate_challenge(void) {
+challenge *generate_challenge(void) {
   unsigned char *server_hmac = NULL;
   unsigned char *hmac = NULL;
   unsigned int  hmac_len = SHA256_DIGEST_LENGTH;

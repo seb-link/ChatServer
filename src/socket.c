@@ -60,7 +60,7 @@ int getconn(t_data *socks) {
   }
 
   pthread_mutex_lock(socks->data_mutex);
-  for (int i = 0; i < MAXCLIENT; i++) {
+  for (int i = 0; i < MAXCLIENTS; i++) {
     if (socks->clients[i]->u == false) {
       socks->clients[i]->u = true;
       socks->clients[i]->sock = new_sock;

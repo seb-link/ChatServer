@@ -22,7 +22,7 @@ int in(char* arr[], ssize_t size, const char* target) {
 void quit(t_data* data) {
   log_close();
   data->reqshut = true;
-  for (int i = 0; i< MAXCLIENT; i++) {
+  for (int i = 0; i< MAXCLIENTS; i++) {
     if (data->clients[i]->u == true) {
       (void) msgsend(data->clients[i]->sock, "ERROR : The server is shutting down", Status_ERROR);
       close(data->clients[i]->sock);

@@ -57,7 +57,7 @@ char *getusername(t_data* data, int sock) {
   }
 
   pthread_mutex_lock(data->data_mutex);
-  for(int i = 0; i < MAXCLIENT; i++) {
+  for(int i = 0; i < MAXCLIENTS; i++) {
     if(data->clients[i]->u) {                                  // Is it used ?
       if (data->clients[i]->username) {                        // Is the username non-null ?
         if (!strcmp(data->clients[i]->username, clean_name)) { // Is is it a duplicate ?
@@ -85,7 +85,7 @@ void removeClient(t_data *data, int sock) {
   
   pthread_mutex_lock(data->data_mutex);
   
-  for (int i = 0; i < MAXCLIENT; i++) {    
+  for (int i = 0; i < MAXCLIENTS; i++) {    
     if (data->clients[i]->sock == sock && data->clients[i]->u == true) {
     
       data->clients[i]->u = false;
@@ -108,7 +108,7 @@ void broadcast(t_data *data, char *msg, char *username) {
   
   sprintf(smsg, "%s : %s", username, msg);
   pthread_mutex_lock(data->data_mutex);
-  for (int i = 0; i<MAXCLIENT; i++) {
+  for (int i = 0; i<MAXCLIENTS; i++) {
     if ( data->clients[i]->u && data->clients[i]->sock > 0 ) {
       if (msgsend(data->clients[i]->sock, smsg, Status_SUCCESS) != 0) {
         removeClient(data, data->clients[i]->sock);

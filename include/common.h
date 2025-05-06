@@ -11,7 +11,7 @@
 #include <ctype.h>
 #include <time.h>
 
-#define MAXCLIENT 2
+#define MAXCLIENTS 2
 #define PORT      8090
 
 #include "socket.h"
