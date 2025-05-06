@@ -124,46 +124,12 @@ void *threadTarget(void* sdata) {
     pthread_mutex_unlock(data->data_mutex);
 
     // Client authentication
-    challenge* challenge;
-    char *result;
-    challenge = generate_challenge();
-    if (!challenge) { 
-      printf("ERROR : Cloud not generate challenge ! Dropping connection...\n");
-      (void) msgsend(new_sock, "ERROR : Server side problem !", Status_ERROR);
-      close(new_sock);
-      log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
+    if ( authenticate_user(data, new_sock) != 1) {
+      log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
       free(username);
       free(msg);
-      continue;
+      break;
     }
-    
-    if(msgsend(new_sock, (char* )challenge->rand, Status_SUCCESS)) {
-      log_msg(LOG_ERROR, "Cloud not send challenge to client");
-      close(new_sock);
-      removeClient(data, new_sock);
-      free(username);
-      free(msg);
-      continue;
-    } 
-    sleep(1);
-    result = getmsg(new_sock);
-
-    // Server verification
-    if (CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) == 0) {
-      printf("Authentication successful!\n");
-      log_msg(LOG_INFO, "[Auth] Client \"%s\" has successfully authenticated", username);
-      if (msgsend(new_sock, "Authentication successful !", Status_SUCCESS)) {
-        close(new_sock);
-        continue;
-      }
-    } else {
-      printf("Client %s : Authentication failed!\n", username);
-      (void) msgsend(new_sock, "ERROR : Invalid HMAC", Status_ERROR);
-      removeClient(data, new_sock);
-      log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication");
-      close(new_sock);
-      continue;
-    }   
 
     printf("New client : %s\n",username);
     while (running) {

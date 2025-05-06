@@ -121,7 +121,7 @@ void broadcast(t_data *data, char *msg, char *username) {
   return;
 }
 
-int msgsend(int sock, char* msg, Status status_code) {
+int msgsend(const int sock, const char* msg, const Status status_code) {
   ssize_t status_code_status, msg_status = 0;
 
   status_code_status = send(sock, &status_codes[status_code], sizeof(uint8_t), 0);

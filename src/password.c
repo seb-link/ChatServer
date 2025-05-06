@@ -2,7 +2,7 @@
 #include "passgen/password.h"
 
 /**
- * This function generate a password
+ * @brief This function generate a password
  *
  * @param[.in]  charset  The charset to use
  * @param[.in]  length   The length of the password

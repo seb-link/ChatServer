@@ -3,6 +3,8 @@
 
 #include "common.h"
 #include "crypto.h"
+#include "log.h"
+#include "client.h"
 
 
 char* sharkey = NULL;
@@ -39,7 +41,8 @@ challenge* generate_challenge(void) {
   unsigned char *server_hmac = NULL;
   unsigned char *hmac = NULL;
   unsigned int  hmac_len = SHA256_DIGEST_LENGTH;
-  static unsigned char *random = NULL;
+  unsigned char *random = NULL;
+
   charset_t charset = 0;
   static challenge result;
   result.hash = NULL;
@@ -82,3 +85,63 @@ challenge* generate_challenge(void) {
 }
 
 
+/**
+ * @brief Authenticates a user by generating a challenge, sending it to the client, 
+ *        and verifying the client's response.
+ *
+ * @param data Pointer to the server's data structure.
+ * @param client_sock The socket descriptor for the client connection.
+ * @return size_t Returns 1 if authentication is successful, 0 otherwise.
+ */
+size_t authenticate_user( t_data *data , int client_sock ) 
+{
+  challenge* challenge;
+  char *result;
+
+  challenge = generate_challenge();
+  if ( !challenge ) { 
+    printf("ERROR : Cloud not generate challenge ! Dropping connection...\n");
+    (void) msgsend(client_sock, "ERROR : Server side problem !", Status_ERROR);
+    close(client_sock);
+    removeClient(data, client_sock);
+    log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
+    return 0;
+  }
+  
+  if( msgsend(client_sock, (char* )challenge->rand, Status_SUCCESS) != EXIT_SUCCESS) {
+    log_msg(LOG_ERROR, "Cloud not send challenge to client");
+    close(client_sock);
+    removeClient(data, client_sock);
+    free(challenge->hash);
+    free(challenge->rand);
+    return 0;
+  } 
+
+  sleep(1);
+  result = getmsg(client_sock);
+  
+  if (!result) {
+    log_msg(LOG_ERROR, "Failed to receive response from client");
+    close(client_sock);
+    removeClient(data, client_sock);
+    free(challenge->hash);
+    free(challenge->rand);
+    return 0;
+  }
+
+  // Server verification
+  if ( CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) != 0 ) {
+    (void) msgsend(client_sock, "ERROR : Invalid HMAC", Status_ERROR);
+    removeClient(data, client_sock);
+    close(client_sock);
+    free(result);
+    free(challenge->hash);
+    free(challenge->rand);
+    return 0;
+  }
+
+  free(result);
+  free(challenge->hash);
+  free(challenge->rand);
+  return 1;
+}

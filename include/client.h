@@ -20,6 +20,6 @@ void  broadcast      (t_data *data, char *msg, char *username);
 char *getusername    (t_data *data, int sock);
 void  removeClient   (t_data *data, int sock);
 int   check_username (char *str);
-int   msgsend        (int sock, char *msg, Status status_code); 
+int   msgsend        (const int sock, const char* msg, const Status status_code); 
 
 #endif

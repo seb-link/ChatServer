@@ -9,6 +9,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "socket.h"
+
 #define RAND_LEN 64
 
 typedef struct {
@@ -20,5 +22,6 @@ extern char *sharkey;  // Declare sharkey as extern
 
 int        crypto_init        (void);
 challenge *generate_challenge (void);
+size_t     authenticate_user  ( t_data *data , int client_sock );
 
 #endif // CRYPTO_H
