@@ -20,6 +20,7 @@ void run(void) {
   null.u = false;
   null.sock = 0;
   null.username = NULL;
+  size_t i = 0; 
 
   pthread_mutex_init(&data_mutex, NULL);
   pthread_mutex_init(&server_mutex, NULL);
@@ -28,33 +29,35 @@ void run(void) {
   
   data.clients = Pclients;
 
-  if (init() != 0) {
+  if (init() != EXIT_SUCCESS) {
     printf("FATAL : Cloud not initialize socket.\n");
     return;
   }
   
-  if (crypto_init() != 0) {
+  if (crypto_init() != EXIT_SUCCESS) {
     printf("FATAL : Cloud not read from keyfile.\n");
     return;
   }
   
-  if (log_init("log.log")) {
+  if (log_init("log.log") != EXIT_SUCCESS) {
     printf("FATAL : Cloud not initialize log file.\n");
     return;
   }
 
   printf("Finished initializing.\n");
 
-  for(int i = 0; i< MAXCLIENT; i++) {
+  for (i = 0; i< MAXCLIENT; i++) {
     clients[i] = null;
+  }
+
+  for (i = 0; i < MAXCLIENT; i++) {
     pthread_create(&threads[i], NULL, threadTarget, &data);
   }
-  
-  
 
   printf("Listening of port : %d...\n",PORT);
   log_msg(LOG_INFO, "Server started and is listening on port %d",PORT);
-  for (int i = 0; i<MAXCLIENT; i++) {
+  
+  for (i = 0; i < MAXCLIENT; i++) {
     pthread_join(threads[i], 0);
   }
 
@@ -64,13 +67,20 @@ void run(void) {
 }
 
 
-void* threadTarget(void* sdata) {
+void *threadTarget(void* sdata) {
   int exitcode = 0;
   bool running = 1;
   t_data* data;
   data = (t_data*) sdata;
+
+  int new_sock = 0;	
+  char ipstr[INET_ADDRSTRLEN];
+  struct sockaddr_in *addr = NULL; 
+  struct in_addr inaddr; 
+  char *msg, *username = NULL;
+
   while (true) {
-    int new_sock = getconn(data);
+    new_sock = getconn(data);
     if (new_sock < 0) {
       perror("accept");
       printf("FATAL : Cloud not get connections !\n");
@@ -78,26 +88,27 @@ void* threadTarget(void* sdata) {
       quit(data);
     }
     
-    char ipstr[INET_ADDRSTRLEN];
     if (getpeername(new_sock, (struct sockaddr*)&address, &addrlen) != 0) {
       perror("getpeername");
       log_msg(LOG_ERROR, "Cloud not call getpeername()");
       close(new_sock);
       continue;
     }
-    struct sockaddr_in* addr = (struct sockaddr_in*)&address;
-    struct in_addr inaddr = addr->sin_addr;
+    addr = (struct sockaddr_in*)&address;
+    inaddr = addr->sin_addr;
+    
     inet_ntop(AF_INET, &inaddr, ipstr, INET_ADDRSTRLEN);
+    
     printf("Got connection !\n");
     log_msg(LOG_INFO, "Got connection from %s", ipstr);
-    char* msg = malloc(sizeof(char) * BUFFSIZE);
+    msg = malloc(sizeof(char) * BUFFSIZE);
     if (!msg) {
       perror("malloc");
       log_msg(LOG_FATAL, "Cloud not allocate memory using malloc");
       quit(data);
     }
 
-    char *username = malloc(MAXNAMSIZE);
+    username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
     if (!username) { 
       free(username);
@@ -125,6 +136,7 @@ void* threadTarget(void* sdata) {
       free(msg);
       continue;
     }
+    
     if(msgsend(new_sock, (char* )challenge->rand, Status_SUCCESS)) {
       log_msg(LOG_ERROR, "Cloud not send challenge to client");
       close(new_sock);
@@ -157,7 +169,7 @@ void* threadTarget(void* sdata) {
     while (running) {
       msg = getmsg(new_sock);
       if (msg != NULL) {
-        if (!strcmp(&msg[0],"/")) {
+        if (strcmp(&msg[0],"/") == 0) {
           switch(parcmd(&msg,data)) {
             case CMD_INVALID :
               if(msgsend(new_sock, (char* )"WARN  : Command not found", Status_WARNING)) {

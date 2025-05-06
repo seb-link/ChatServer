@@ -15,11 +15,11 @@ typedef enum {
   Status_ERROR_KICKED // Resulting of the kick command
 } Status;
 
-char* getmsg         (int sock);
-void  broadcast      (t_data *data, char* msg, char* username);
-char* getusername    (t_data* data, int sock);
+char *getmsg         (int sock);
+void  broadcast      (t_data *data, char *msg, char *username);
+char *getusername    (t_data *data, int sock);
 void  removeClient   (t_data *data, int sock);
 int   check_username (char *str);
-int   msgsend        (int sock, char* msg, Status status_code); 
+int   msgsend        (int sock, char *msg, Status status_code); 
 
 #endif

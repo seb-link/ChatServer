@@ -10,12 +10,12 @@ typedef enum {
   LOG_INFO
 } LogLevel;
 
-extern char* levels[]; 
+extern char *levels[]; 
 extern FILE *log_file;
 
-int  log_init  (const char* filename);
+int  log_init  (const char *filename);
 void log_close (void);
-void log_msg   (LogLevel level, const char* msg, ...);
+void log_msg   (LogLevel level, const char *msg, ...);
 
 
 #endif // LOG_H

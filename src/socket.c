@@ -41,9 +41,13 @@ int getconn(t_data *socks) {
     fprintf(stderr, "Error: NULL data passed to getconn\n");
     return -EXIT_FAILURE;
   }
+ 
+  bool alloc = false;
+  int new_sock = 0;
   
+  /* Listen for connection (one thread at a time) */
   pthread_mutex_lock(socks->server_mutex);
-  int new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+  new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
   pthread_mutex_unlock(socks->server_mutex);
 
   if (new_sock < 0) {
@@ -51,8 +55,10 @@ int getconn(t_data *socks) {
     return -EXIT_FAILURE;
   }
 
-  bool alloc = false;
-  if (socks->reqshut == true) pthread_exit(0);
+  if (socks->reqshut == true) {
+    pthread_exit(0);
+  }
+
   pthread_mutex_lock(socks->data_mutex);
   for (int i = 0; i < MAXCLIENT; i++) {
     if (socks->clients[i]->u == false) {

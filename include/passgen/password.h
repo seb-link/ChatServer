@@ -19,24 +19,12 @@ int random_int_nix(size_t up_range);
 #include <stdlib.h>
 
 typedef struct {
-  char*  charset;
+  char   *charset;
   size_t length;
 } charset_str_t;
 
-typedef struct {
-  size_t seconds   ;
-  size_t minutes   ;
-  size_t hours     ;
-  size_t days      ;
-  size_t months    ;
-  size_t years     ;
-  size_t millennium;
-} time_data_t ;
-
-char*           generate_password  (charset_t charset, size_t length);
-charset_str_t*  parse_charset      (charset_t charset);
-void            print_time         (charset_str_t* charset_str, size_t length);
-time_data_t*    timeconvert        (double seconds);
+char           *generate_password  (charset_t charset, size_t length);
+charset_str_t  *parse_charset      (charset_t charset);
 
 #endif
 

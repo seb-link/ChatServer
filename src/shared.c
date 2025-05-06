@@ -22,17 +22,16 @@ int in(char* arr[], ssize_t size, const char* target) {
 void quit(t_data* data) {
   log_close();
   data->reqshut = true;
-  pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i< MAXCLIENT; i++) {
     if (data->clients[i]->u == true) {
-      msgsend(data->clients[i]->sock, "ERROR : The server is shutting down", Status_ERROR);
+      (void) msgsend(data->clients[i]->sock, "ERROR : The server is shutting down", Status_ERROR);
       close(data->clients[i]->sock);
     }
     // Not technically required but idc
     data->clients[i]->u    = false; 
     data->clients[i]->sock = 0;
   }
-  pthread_mutex_unlock(data->data_mutex);
+
   pthread_mutex_destroy(data->data_mutex);
   pthread_mutex_destroy(data->server_mutex);
   exit(0);

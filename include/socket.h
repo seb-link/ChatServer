@@ -20,15 +20,15 @@ typedef struct {
 } Client;
 
 typedef struct s_data {
-  pthread_mutex_t* data_mutex;
-  pthread_mutex_t* server_mutex;
+  pthread_mutex_t *data_mutex;
+  pthread_mutex_t *server_mutex;
   Client           (*clients)[MAXCLIENT];
   bool             reqshut;
 } t_data;
 
 int   init           (void);
-char* getmsg         (int sock);
-int   getconn        (t_data* socks);
+char *getmsg         (int sock);
+int   getconn        (t_data *socks);
 
 #endif
 

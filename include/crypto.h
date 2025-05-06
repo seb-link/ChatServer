@@ -13,13 +13,13 @@
 
 typedef struct {
   unsigned char *rand;
-  unsigned char* hash;
+  unsigned char *hash;
 } challenge;
 
-extern char* sharkey;  // Declare sharkey as extern
+extern char *sharkey;  // Declare sharkey as extern
 
 int        crypto_init        (void);
-challenge* generate_challenge (void);
+challenge *generate_challenge (void);
 int        get_random_bytes   (unsigned char **buffer, size_t length);
 
 #endif // CRYPTO_H
