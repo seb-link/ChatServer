@@ -1,7 +1,5 @@
-#ifndef CHARSET_H
-#define CHARSET_H
-
-#include <stdint.h>
+#ifndef PASSGEN_CHARSET_H
+#define PASSGEN_CHARSET_H
 
 typedef enum {
 	CHAR_LOWER  = 1<<0, // Is there lowercase
@@ -10,8 +8,4 @@ typedef enum {
 	CHAR_SYMBOL = 1<<3  // Is there symbols
 } charset_t;
 
-
-charset_t  get_charset  (void);
-
-#endif
-
+#endif /* PASSGEN_CHARSET_H */

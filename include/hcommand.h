@@ -1,5 +1,5 @@
-#ifndef COMMAND_H
-#define COMMAND_H
+#ifndef CHATSERVER_COMMAND_H
+#define CHATSERVER_COMMAND_H
 
 #include "socket.h"
 
@@ -16,4 +16,4 @@ static char *commands[] = {"/exit","/stop","/kick"};
 
 int parcmd(char **msg, t_data *data);
 
-#endif // COMMAND_H
+#endif /* CHATSERVER_COMMAND_H */

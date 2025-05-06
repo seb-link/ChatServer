@@ -1,5 +1,5 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef CHATSERVER_CLIENT_H
+#define CHATSERVER_CLIENT_H
 
 #include "socket.h"
 
@@ -22,4 +22,4 @@ void  removeClient   (t_data *data, int sock);
 int   check_username (char *str);
 int   msgsend        (const int sock, const char* msg, const Status status_code); 
 
-#endif
+#endif /* CHATSERVER_CLIENT_H */

@@ -3,20 +3,20 @@ CFLAGS     = -Wall -Wextra -Wpedantic -Iinclude -std=c17 -ggdb
 LDFLAGS    = -lssl -lcrypto -lm
 CWARNFLAGS = -Wno-unused-variable
 
-DST_DIR = tests/src
-SRC_DIR = src
-OBJ_DIR = obj
-BIN_DIR = tests/bin
+SRC_DIR    = src
+OBJ_DIR    = obj
+BIN_DIR    = tests/bin
+TST_DIR    = tests/src
 
-TARGET = server
+TARGET     = server
 
 # Main program
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+SRCS       = $(wildcard $(SRC_DIR)/*.c)
+OBJS       = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
 # Test handling
-TEST_SRCS = $(wildcard $(TST_DIR)/*.c)
-TEST_BINS = $(patsubst $(TST_DIR)/%.c, $(BIN_DIR)/%, $(TEST_SRCS))
+TEST_SRCS  = $(wildcard $(TST_DIR)/*.c)
+TEST_BINS  = $(patsubst $(TST_DIR)/%.c, $(BIN_DIR)/%, $(TEST_SRCS))
 
 .PHONY: all clean tests
 
@@ -29,10 +29,10 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CWARNFLAGS) -c $< -o $@
 
-# Fixed test rule with explicit path handling
-$(TEST_BINS): $(BIN_DIR)/%: $(TST_DIR)/%.c $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
+# Compile tests, linking with main project object files
+$(BIN_DIR)/%: $(TST_DIR)/%.c $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
 	@mkdir -p $(@D)
-	$(CC) -Itests $(CFLAGS) $(CWARNFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CWARNFLAGS) -Itests $^ -o $@ $(LDFLAGS)
 
 tests: $(TEST_BINS)
 

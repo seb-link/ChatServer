@@ -1,5 +1,5 @@
-#ifndef CRYPTO_H
-#define CRYPTO_H
+#ifndef CHATSERVER_CRYPTO_H
+#define CHATSERVER_CRYPTO_H
 
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
@@ -24,4 +24,4 @@ int        crypto_init        (void);
 challenge *generate_challenge (void);
 size_t     authenticate_user  ( t_data *data , int client_sock );
 
-#endif // CRYPTO_H
+#endif /* CHATSERVER_CRYPTO_H */

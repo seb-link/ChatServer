@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef CHATSERVER_COMMON_H
+#define CHATSERVER_COMMON_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,4 +21,4 @@ void  quit     (t_data *data);
 char *strdupli (const char *s);
 void  print_hex(const unsigned char *data, size_t len);
 
-#endif // COMMON_H
+#endif /* CHATSERVER_COMMON_H */

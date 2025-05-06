@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef CHATSERVER_LOG_H
+#define CHATSERVER_LOG_H
 
 #include <stdarg.h>
 
@@ -18,5 +18,5 @@ void log_close (void);
 void log_msg   (LogLevel level, const char *msg, ...);
 
 
-#endif // LOG_H
+#endif /* CHATSERVER_LOG_H */
 

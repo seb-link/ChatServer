@@ -1,5 +1,5 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef PASSGEN_COMMON_H
+#define PASSGEN_COMMON_H
 
 #include <stdint.h>
 #include <stdio.h>
@@ -9,5 +9,4 @@
 #include <time.h>
 #include <math.h>
 
-#endif
-
+#endif /* PASSGEN_COMMON_H */

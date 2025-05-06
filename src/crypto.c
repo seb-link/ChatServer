@@ -3,8 +3,10 @@
 
 #include "common.h"
 #include "crypto.h"
+
 #include "log.h"
 #include "client.h"
+#include "socket.h"
 
 
 char* sharkey = NULL;
@@ -44,10 +46,10 @@ challenge* generate_challenge(void) {
   unsigned char *random = NULL;
 
   charset_t charset = 0;
-  static challenge result;
-  result.hash = NULL;
-  result.rand = NULL;
-
+  
+  challenge *result = malloc(sizeof(challenge));
+  result->hash = NULL;
+  result->rand = NULL;
 
   // Server generates random challenge (64 bytes)
   charset = 7; // 7 = 0111
@@ -79,9 +81,9 @@ challenge* generate_challenge(void) {
     return NULL;
   }
 
-  result.hash = server_hmac;
-  result.rand = random;
-  return &result;
+  result->hash = server_hmac;
+  result->rand = random;
+  return result;
 }
 
 
@@ -114,18 +116,20 @@ size_t authenticate_user( t_data *data , int client_sock )
     removeClient(data, client_sock);
     free(challenge->hash);
     free(challenge->rand);
+    free(challenge);
     return 0;
   } 
 
   sleep(1);
   result = getmsg(client_sock);
-  
+
   if (!result) {
     log_msg(LOG_ERROR, "Failed to receive response from client");
     close(client_sock);
     removeClient(data, client_sock);
     free(challenge->hash);
     free(challenge->rand);
+    free(challenge);
     return 0;
   }
 
@@ -137,11 +141,14 @@ size_t authenticate_user( t_data *data , int client_sock )
     free(result);
     free(challenge->hash);
     free(challenge->rand);
+    free(challenge);
     return 0;
   }
 
   free(result);
   free(challenge->hash);
   free(challenge->rand);
+  free(challenge);
+  
   return 1;
 }

@@ -1,5 +1,5 @@
-#ifndef PASSWORD_H
-#define PASSWORD_H
+#ifndef PASSGEN_PASSWORD_H
+#define PASSGEN_PASSWORD_H
 
 #include "charset.h"
 
@@ -26,5 +26,4 @@ typedef struct {
 char           *generate_password  (charset_t charset, size_t length);
 charset_str_t  *parse_charset      (charset_t charset);
 
-#endif
-
+#endif /* PASSGEN_PASSWORD_H */

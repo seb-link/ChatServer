@@ -1,6 +1,6 @@
-#ifndef RUNNER_H
-#define RUNNER_H
+#ifndef CHATSERVER_RUNNER_H
+#define CHATSERVER_RUNNER_H
 
 void run(void);
 
-#endif
+#endif /* CHATSERVER_RUNNER_H */
