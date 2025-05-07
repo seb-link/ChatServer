@@ -1,1 +1,0 @@
-./password.c:  charset_str = malloc(len + 1);

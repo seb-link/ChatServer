@@ -1,2 +1,0 @@
-./charset.c:  char* current_char = NULL;
-./charset.c:  free(current_char);
