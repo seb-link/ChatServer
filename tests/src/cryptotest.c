@@ -1,118 +1,150 @@
-#include "common.h"
-#include "crypto.h"
-
+#include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <openssl/hmac.h> // Include OpenSSL for HMAC computation
 #include "tests.h"
-challenge* custom_generate_challenge( unsigned char *random) {
-  unsigned char *server_hmac = NULL;
-  unsigned char *hmac = NULL;
-  unsigned int  hmac_len = SHA256_DIGEST_LENGTH;
+#include "crypto.h"       // Include the header for the function being tested
 
-  challenge *result = malloc( sizeof(challenge) );
-  result->hash = NULL;
-  result->rand = NULL;
-  
-  // Server computes HMAC-SHA256
-  server_hmac = malloc(hmac_len);
-  if (!server_hmac) {
-    perror("malloc");
-    return NULL;
-  }
+#define MEMCMP_ERROR       1
+#define RANDLEN_ERROR      2
+#define HASHLEN_ERROR      3
+#define INIT_ERROR         4
+#define RESULT_NULL        5
+#define RESULT_HASH_NULL   6
+#define RESULT_RAND_NULL   7
 
-  memset(server_hmac, 0, hmac_len); 
-  
-  hmac = HMAC(
-    EVP_sha256(),                                   // Hash algorithm
-    (const unsigned char*)sharkey, strlen(sharkey), // Key and its length
-    (const unsigned char*)random,  RAND_LEN,         // Data and its length
-    server_hmac, &hmac_len                          // Output buffer and size
-  );
-  
-  if (server_hmac == 0) {
-    fprintf(stderr, "HMAC computation failed!\n");
-    return NULL;
-  }
-  
-  if (!hmac) {
-    perror("HMAC");
-    return NULL;
-  }
+int test_generate_challenge() {
+    // Initialize the cryptographic key
 
-  result->hash = server_hmac;
-  result->rand = random;
-  return result;
+    // Call the function to generate a challenge
+    challenge *result = generate_challenge();
+
+    // Assert that the result is not NULL
+    if (result == NULL) return RESULT_NULL;
+    if (result->rand == NULL) {
+      free(result); 
+      return RESULT_RAND_NULL;
+    }
+    if (result->hash == NULL) {
+      free(result); 
+      return RESULT_HASH_NULL;
+    }
+
+    ssize_t _rand_len = strlen((char *)result->rand);
+    ssize_t _hash_len = strlen((char *)result->hash); 
+
+    // Assert that the random string is of the expected length
+    if (!QUIET_MODE) printf("Rand len = %d\n", _rand_len);
+    if (!QUIET_MODE) printf("Rand = \"%s\"\n", result->rand);
+    if (_rand_len != _rand_len) {
+      free(result->rand);
+      free(result->hash);
+      free(result);
+      return RANDLEN_ERROR;
+    }
+
+    // Assert that the hash is of the expected length (SHA256_DIGEST_LENGTH)
+    if (!QUIET_MODE) printf("Hash len = %d\n", _hash_len);
+    // printf("Hash = \"%s\"\n", result->hash);
+    if (_hash_len != SHA256_DIGEST_LENGTH) {
+      free(result->rand);
+      free(result->hash);
+      free(result);
+      return HASHLEN_ERROR;
+    }
+
+    // Recompute the HMAC-SHA256 hash
+    unsigned char recomputed_hash[SHA256_DIGEST_LENGTH];
+    unsigned int hash_len = 0;
+
+    HMAC(
+        EVP_sha256(),                  // Hash algorithm
+        sharkey, strlen(sharkey),      // Key and its length
+        result->rand, _rand_len,        // Data and its length
+        recomputed_hash, &hash_len     // Output buffer and size
+    );
+
+    // Assert that the recomputed hash matches the hash in the challenge
+    if( memcmp(result->hash, recomputed_hash, SHA256_DIGEST_LENGTH) != 0) {
+      free(result->rand);
+      free(result->hash);
+      free(result);
+      return MEMCMP_ERROR;
+    } 
+
+    if (!QUIET_MODE) printf("test_generate_challenge passed!\n");
+
+    // Free allocated memory
+    free(result->rand);
+    free(result->hash);
+    free(result);
+
+    return EXIT_SUCCESS;
 }
 
+int main ( void ) {
+  int result = 0, current = 0;
+  if (crypto_init() != EXIT_SUCCESS) {
+    fprintf(stderr, "Failed to initialize crypto.\n");
+    return INIT_ERROR;
+  }
 
-int test(void) {
-    challenge* a;
-    if (!QUIET_MODE) printf("INFO : Generating challenge...\n");
-    a = generate_challenge();
 
-    if (!QUIET_MODE) printf("INFO : Challenge generated !\n");
+  // Counters for each error type
+  int init_error_count = 0;
+  int result_null_count = 0;
+  int result_rand_null_count = 0;
+  int result_hash_null_count = 0;
+  int randlen_error_count = 0;
+  int hashlen_error_count = 0;
+  int memcmp_error_count = 0;
 
-    if (!QUIET_MODE) {
-      printf("Hash data : ");
-      puts(a->hash);
-      print_hex(a->hash, strlen(a->hash));
-      printf("Rand data : ");
-      puts(a->rand);
-      print_hex(a->rand, strlen(a->rand));
+  for (int i = 0; i < TEST_NUM; i++) {
+    current = test_generate_challenge();
+
+    switch (current) {
+      case EXIT_SUCCESS:
+        result++;
+        break;
+      case INIT_ERROR:
+        init_error_count++;
+        break;
+      case RESULT_NULL:
+        result_null_count++;
+        break;
+      case RESULT_RAND_NULL:
+        result_rand_null_count++;
+        break;
+      case RESULT_HASH_NULL:
+        result_hash_null_count++;
+        break;
+      case RANDLEN_ERROR:
+        randlen_error_count++;
+        break;
+      case HASHLEN_ERROR:
+        hashlen_error_count++;
+        break;
+      case MEMCMP_ERROR:
+        memcmp_error_count++;
+        break;
+      default:
+        printf("Error: Unknown error occurred.\n");
+        break;
     }
+  }
 
-    challenge* b;
+  // Print results
+  printf("Test Passed : %d/%d\n", result, TEST_NUM);
+  printf("That's %lf%%.\n", (double) result / TEST_NUM * 100);
 
-    if (!QUIET_MODE) printf("INFO : Generating challenge...\n");
+  // Print error percentages
+  printf("INIT_ERROR: %lf%%\n", (double) init_error_count / TEST_NUM * 100);
+  printf("RESULT_NULL: %lf%%\n", (double) result_null_count / TEST_NUM * 100);
+  printf("RESULT_RAND_NULL: %lf%%\n", (double) result_rand_null_count / TEST_NUM * 100);
+  printf("RESULT_HASH_NULL: %lf%%\n", (double) result_hash_null_count / TEST_NUM * 100);
+  printf("RANDLEN_ERROR: %lf%%\n", (double) randlen_error_count / TEST_NUM * 100);
+  printf("HASHLEN_ERROR: %lf%%\n", (double) hashlen_error_count / TEST_NUM * 100);
+  printf("MEMCMP_ERROR: %lf%%\n", (double) memcmp_error_count / TEST_NUM * 100);
 
-    b = custom_generate_challenge(a->rand);
-
-    if (!QUIET_MODE) printf("INFO : Challenge generated !\n");
-
-    if (!QUIET_MODE) {
-      printf("Hash data : ");
-      puts(b->hash);
-      print_hex(b->hash, strlen(b->hash));
-      printf("Rand data : ");
-      puts(b->rand);
-      print_hex(a->rand, strlen(b->rand));
-    }
-
-    if (CRYPTO_memcmp(a->hash, b->hash, SHA256_DIGEST_LENGTH)) {
-        free(a->hash);
-        free(a->rand);
-        free(b->hash);
-        free(b->rand);
-        free(a);        
-        free(b);
-        printf("HASH MISMATCH ");
-        return 0;
-    }
-    
-    memset(a->hash, 0, SHA256_DIGEST_LENGTH);
-    memset(a->rand, 0, RAND_LEN);
-    memset(b->hash, 0, SHA256_DIGEST_LENGTH);
-    memset(b->rand, 0, RAND_LEN);
-    memset(a, 0, sizeof(challenge));    
-    memset(b, 0, sizeof(challenge));
-
-    return 1;
-}
-
-int main(void) {
-    printf("TEST : CRYPTO : generate_challenge()\n");
-
-    if (!QUIET_MODE) printf("INFO : Initing crypto...\n");
-
-    if (crypto_init() != 0) {
-        printf("FATAL : CRYPTO : Cloud not initialize crypto !\n");
-        return 1;
-    }
-    
-    int result = 0;
-    /* Don't work quite well */
-    //for (int i = 0; i<TEST_NUM; i++) {
-        result += test();
-    //} 
-    printf("Got %d good on %d tries\n", result, TEST_NUM );
-    printf("That would be %.4lf percent \n", (double) result / TEST_NUM * 100);
-    return 0;
+  return 0;
 }

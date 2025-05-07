@@ -4,7 +4,6 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <pthread.h>
 
 #include "common.h"
 
@@ -18,19 +17,6 @@ static int                server_fd;
 static int                opt;
 static struct sockaddr_in address;
 static socklen_t          addrlen;
-
-typedef struct {
-  char *username;
-  int sock;
-  bool u;
-} Client;
-
-typedef struct s_data {
-  pthread_mutex_t  *data_mutex;
-  pthread_mutex_t  *server_mutex;
-  Client           (*clients)[MAXCLIENTS];
-  bool             reqshut;
-} t_data;
 
 int   init           (void);
 int   getconn        (t_data *socks);

@@ -10,9 +10,23 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <time.h>
+#include <pthread.h>
 
 #define MAXCLIENTS 2
 #define PORT      8090
+
+typedef struct {
+  char *username;
+  int sock;
+  bool u;
+} Client;
+
+typedef struct s_data {
+  pthread_mutex_t  *data_mutex;
+  pthread_mutex_t  *server_mutex;
+  Client           (*clients)[MAXCLIENTS];
+  bool             reqshut;
+} t_data;
 
 #include "socket.h"
 

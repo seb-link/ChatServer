@@ -1,4 +1,5 @@
 #include "common.h"
+#include "socket.h"
 #include "client.h"
 #include "log.h"
 

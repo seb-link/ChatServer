@@ -2,6 +2,6 @@
 #define CHATSERVER_TESTS_H
 
 #define QUIET_MODE 1
-#define TEST_NUM   1 // 20_000
+#define TEST_NUM   2000 // 20_000
 
 #endif /* CHATSERVER_TESTS_H */

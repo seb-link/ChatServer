@@ -54,7 +54,7 @@ challenge *generate_challenge(void) {
   random = generate_password(charset, RAND_LEN);
   
   // Server computes HMAC-SHA256
-  server_hmac = malloc(hmac_len);
+  server_hmac = malloc(hmac_len + 1);
   if (!server_hmac) {
     perror("malloc");
     return NULL;
@@ -78,6 +78,8 @@ challenge *generate_challenge(void) {
     perror("HMAC");
     return NULL;
   }
+
+  server_hmac[hmac_len] = '\0';
 
   result->hash = server_hmac;
   result->rand = random;

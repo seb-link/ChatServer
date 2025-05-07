@@ -32,7 +32,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 # Compile tests, linking with main project object files
 $(BIN_DIR)/%: $(TST_DIR)/%.c $(filter-out $(OBJ_DIR)/main.o, $(OBJS))
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(CWARNFLAGS) -Itests $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CWARNFLAGS) -Itests/include $^ -o $@ $(LDFLAGS)
 
 tests: $(TEST_BINS)
 

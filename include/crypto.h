@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "common.h"
 #include "socket.h"
 
 #define RAND_LEN 64
