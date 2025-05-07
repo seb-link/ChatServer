@@ -9,8 +9,6 @@ uint8_t status_codes[] = {
   201  // KICK_ERROR
 };
 
-char *trim_whitespace(char *str);
-
 const size_t  banned_username_len =  3;
 const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
 
@@ -176,6 +174,9 @@ char *getmsg(int sock, size_t *len) {
   ssize_t bytes_recv = 0;
   if ( !len ) {
     *len = BUFFSIZE;
+  }
+  if ( *len < 1 ) {
+    return NULL;
   }
 
   msg = malloc(*len);        

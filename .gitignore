@@ -2,3 +2,4 @@ server
 obj/*
 key.key
 log.log
+.vscode/*
