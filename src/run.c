@@ -105,9 +105,9 @@ void *threadTarget(void* sdata) {
     username = malloc(MAXNAMSIZE);
     username = getusername(data, new_sock); // New client username
     if (!username) { 
-      free(username);
       continue; // Connection closed in getusername
     }
+
     pthread_mutex_lock(data->data_mutex);
     for(int i = 0; i < MAXCLIENTS; i++) {
       if(data->clients[i]->sock == new_sock) {
@@ -118,11 +118,11 @@ void *threadTarget(void* sdata) {
     pthread_mutex_unlock(data->data_mutex);
 
     // Client authentication
-    if ( authenticate_user(data, new_sock) != 1) {
+    if ( authenticate_user(data, new_sock) != AUTH_SUCCESS) {
       log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
       free(username);
       free(msg);
-      break;
+      break; /* Socket closing and client removal is handled in the authenticate_user function */
     }
 
     printf("New client : %s\n",username);

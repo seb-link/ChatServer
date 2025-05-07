@@ -13,6 +13,9 @@
 
 #define RAND_LEN 64
 
+#define AUTH_SUCCESS 1
+#define AUTH_FAILED  0
+
 typedef struct {
   unsigned char *rand;
   unsigned char *hash;

@@ -91,7 +91,7 @@ challenge *generate_challenge(void) {
  *
  * @param data Pointer to the server's data structure.
  * @param client_sock The socket descriptor for the client connection.
- * @return size_t Returns 1 if authentication is successful, 0 otherwise.
+ * @return size_t Returns AUTH_SUCCESS if authentication is successful, AUTH_FAILED otherwise.
  */
 size_t authenticate_user( t_data *data , int client_sock ) 
 {
@@ -105,33 +105,34 @@ size_t authenticate_user( t_data *data , int client_sock )
     close(client_sock);
     removeClient(data, client_sock);
     log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
-    return 0;
+    return AUTH_FAILED;
   }
   
-  if( msgsend(client_sock, (char* )challenge->rand, Status_SUCCESS) != EXIT_SUCCESS) {
+  /* Send the random data to the client */
+  if( msgsend(client_sock, (char* )challenge->rand, Status_SUCCESS) != EXIT_SUCCESS ) {
     log_msg(LOG_ERROR, "Cloud not send challenge to client");
     close(client_sock);
     removeClient(data, client_sock);
     free(challenge->hash);
     free(challenge->rand);
     free(challenge);
-    return 0;
+    return AUTH_FAILED;
   } 
 
   sleep(1);
   result = getmsg(client_sock);
 
-  if (!result) {
+  if ( !result ) {
     log_msg(LOG_ERROR, "Failed to receive response from client");
     close(client_sock);
     removeClient(data, client_sock);
     free(challenge->hash);
     free(challenge->rand);
     free(challenge);
-    return 0;
+    return AUTH_FAILED;
   }
 
-  // Server verification
+  /* Server verification */
   if ( CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) != 0 ) {
     (void) msgsend(client_sock, "ERROR : Invalid HMAC", Status_ERROR);
     removeClient(data, client_sock);
@@ -140,7 +141,7 @@ size_t authenticate_user( t_data *data , int client_sock )
     free(challenge->hash);
     free(challenge->rand);
     free(challenge);
-    return 0;
+    return AUTH_FAILED;
   }
 
   free(result);
@@ -148,5 +149,5 @@ size_t authenticate_user( t_data *data , int client_sock )
   free(challenge->rand);
   free(challenge);
   
-  return 1;
+  return AUTH_SUCCESS;
 }

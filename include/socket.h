@@ -24,7 +24,7 @@ typedef struct {
 typedef struct s_data {
   pthread_mutex_t  *data_mutex;
   pthread_mutex_t  *server_mutex;
-  Client           (*clients)[MAXCLIENT];
+  Client           (*clients)[MAXCLIENTS];
   bool             reqshut;
 } t_data;
 
