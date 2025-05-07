@@ -7,7 +7,6 @@
 #include "log.h"
 
 void* threadTarget(void* data);
-void quit(t_data* data);
 
 void run(void) {  
   t_data data;
