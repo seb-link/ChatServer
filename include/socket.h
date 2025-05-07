@@ -10,6 +10,10 @@
 
 #define BUFFSIZE 1024
 
+#define ERROR_SERVER_FULL  -1
+#define ERROR_ACCEPT_ERROR -2 
+#define ERROR_NULL_DATA    -3 
+
 static int                server_fd;
 static int                opt;
 static struct sockaddr_in address;

@@ -10,6 +10,7 @@ void print_hex(const unsigned char *data, size_t len) {
   printf("\n");
 }
 
+/* Helper function */
 int in(char* arr[], ssize_t size, const char* target) {
   for (ssize_t i = 0; i < size; i++) {
     if (arr[i] != NULL && strcmp(arr[i], target) == 0) {
@@ -19,7 +20,8 @@ int in(char* arr[], ssize_t size, const char* target) {
   return 0;
 }
 
-void quit(t_data* data) {
+/* Make the server stop */
+void quit(t_data *data) {
   log_close();
   data->reqshut = true;
   for (int i = 0; i< MAXCLIENTS; i++) {
@@ -37,6 +39,7 @@ void quit(t_data* data) {
   exit(0);
 }
 
+/* Helper function */
 char *strdupli(const char *c) {
     char *dup = malloc(strlen(c) + 1);
 

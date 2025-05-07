@@ -1,7 +1,7 @@
 #include "common.h"
 #include "socket.h"
 
-// Copied from "https://www.geeksforgeeks.org/socket-programming-cc/" and adapted to my case
+// Function copied from "https://www.geeksforgeeks.org/socket-programming-cc/" and adapted to my case
 int init(void) {
   opt = 1;
   addrlen = sizeof(address);
@@ -39,7 +39,7 @@ int init(void) {
 int getconn(t_data *socks) {
   if (socks == NULL) {
     fprintf(stderr, "Error: NULL data passed to getconn\n");
-    return -EXIT_FAILURE;
+    return ERROR_NULL_DATA;
   }
  
   bool alloc = false;
@@ -52,7 +52,7 @@ int getconn(t_data *socks) {
 
   if (new_sock < 0) {
     perror("accept");
-    return -EXIT_FAILURE;
+    return ERROR_ACCEPT_ERROR;
   }
 
   if (socks->reqshut == true) {
@@ -73,6 +73,8 @@ int getconn(t_data *socks) {
 
   if (alloc == 0) {
     close(new_sock);
+    fprintf(stderr, "Error: Cloud not register new client !\n");
+    return ERROR_SERVER_FULL;
   }
 
   return new_sock;

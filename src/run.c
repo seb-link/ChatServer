@@ -74,14 +74,26 @@ void *threadTarget(void* sdata) {
 
   while (true) {
     new_sock = getconn(data);
-    if (new_sock < 0) {
-      perror("accept");
-      printf("FATAL : Cloud not get connections !\n");
-      log_msg(LOG_FATAL, "Cloud not get connections");
+
+    if (new_sock == ERROR_SERVER_FULL) {
+      printf("ERROR : The server is full !\n");
+      log_msg(LOG_ERROR, "The server is full, dropping connection !");
+      continue;
+    }
+
+    if (new_sock == ERROR_ACCEPT_ERROR) {
+      printf("FATAL : Cloud not get connections (Error on accept) !\n");
+      log_msg(LOG_FATAL, "Cloud not get connections (Error on accept)");
       quit(data);
     }
+
+    if (new_sock == ERROR_NULL_DATA) {
+      printf("FATAL : NULL passed in the treadTarget function !!\n");
+      log_msg(LOG_FATAL, "NULL passed in the treadTarget function !!");
+      pthread_exit(1);
+    }
     
-    if (getpeername(new_sock, (struct sockaddr*)&address, &addrlen) != 0) {
+    if ( getpeername(new_sock, (struct sockaddr*)&address, &addrlen) != 0 ) {
       perror("getpeername");
       log_msg(LOG_ERROR, "Cloud not call getpeername()");
       close(new_sock);

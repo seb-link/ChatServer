@@ -14,7 +14,13 @@ char *trim_whitespace(char *str);
 const size_t  banned_username_len =  3;
 const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
 
-// Get Client username
+/**
+ * @brief Retrieves the username of a client from the socket.
+ *
+ * @param data Pointer to the server's data structure.
+ * @param sock The socket descriptor for the client connection.
+ * @return char* The cleaned username if successful, NULL otherwise.
+ */
 char *getusername(t_data* data, int sock) {
 
   char *username   = NULL;
@@ -81,6 +87,12 @@ char *getusername(t_data* data, int sock) {
   return clean_name;
 }
 
+/**
+ * @brief Removes a client from the server's client list.
+ *
+ * @param data Pointer to the server's data structure.
+ * @param sock The socket descriptor of the client to remove.
+ */
 void removeClient(t_data *data, int sock) {
   
   pthread_mutex_lock(data->data_mutex);
@@ -103,6 +115,13 @@ void removeClient(t_data *data, int sock) {
   return;
 }
 
+/**
+ * @brief Broadcasts a message to all connected clients.
+ *
+ * @param data Pointer to the server's data structure.
+ * @param msg The message to broadcast.
+ * @param username The username of the sender.
+ */
 void broadcast(t_data *data, char *msg, char *username) {
   char *smsg = malloc(sizeof(username) + sizeof(msg) + 5); // message to send
   
@@ -121,6 +140,14 @@ void broadcast(t_data *data, char *msg, char *username) {
   return;
 }
 
+/**
+ * @brief Sends a message to a specific client.
+ *
+ * @param sock The socket descriptor of the client.
+ * @param msg The message to send.
+ * @param status_code The status code to send along with the message.
+ * @return int EXIT_SUCCESS on success, EXIT_FAILURE on failure.
+ */
 int msgsend(const int sock, const char* msg, const Status status_code) {
   ssize_t status_code_status, msg_status = 0;
 
@@ -140,6 +167,12 @@ int msgsend(const int sock, const char* msg, const Status status_code) {
   return EXIT_SUCCESS;
 }
 
+/**
+ * @brief Receives a message from a client.
+ *
+ * @param sock The socket descriptor of the client.
+ * @return char* The received message, or NULL on failure.
+ */
 char *getmsg(int sock) {
   char    *msg;
   ssize_t bytes_recv = 0;
@@ -166,6 +199,7 @@ char *getmsg(int sock) {
   return msg;
 }
 
+/* Helper function */
 int check_username(char *str) {
   for (; *str != '\0'; str++) {
       if (!isalnum((unsigned char)*str)) {
@@ -175,6 +209,7 @@ int check_username(char *str) {
   return 0;
 }
 
+/* Helper function */
 // Removes whitespaces (isspace from ctypes)
 char* trim_whitespace(char* str) { 
   while(isspace((unsigned char)*str)) str++;
@@ -184,4 +219,3 @@ char* trim_whitespace(char* str) {
   *(end+1) = '\0';
   return str;
 }
-// //
