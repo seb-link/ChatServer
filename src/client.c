@@ -24,13 +24,11 @@ const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
 char *getusername(t_data* data, int sock) {
 
   char *username   = NULL;
-  char *clean_name = NULL;
   bool duplicate   = false;
 
-  username = malloc(MAXNAMSIZE);
-  username = getmsg(sock); // New client username
+  username = getmsg(sock, (size_t *) MAXNAMESIZE); // New client username
   
-  if(!username) {
+  if (!username) {
     printf("Connection closed before username received\n");
     close(sock);
     removeClient(data, sock);
@@ -38,10 +36,10 @@ char *getusername(t_data* data, int sock) {
     return NULL; // Failed
   }
 
-  clean_name = trim_whitespace(username);
-  if(strlen(clean_name) == 0) {
+  if (strlen(username) == 0) {
     printf("Empty username received\n");
     msgsend(sock, "ERROR: Username cannot be empty\n", Status_ERROR);
+    log_msg(LOG_ERROR, "ERROR: Empty username received.");
     free(username);
     close(sock);
     removeClient(data, sock);
@@ -49,24 +47,24 @@ char *getusername(t_data* data, int sock) {
   }
 
   for (size_t i = 0; i < banned_username_len; i++) {
-    if (strcmp(clean_name, banned_username[i]) == 0) {
+    if (strcmp(username, banned_username[i]) == 0) {
       msgsend(sock, "ERROR: Invalid username", Status_ERROR);
       close(sock);
       return NULL;
     }
   }
 
-  if (check_username(clean_name)) {
+  if (check_username(username)) {
     msgsend(sock, "ERROR: Username can only contain letters and numbers.", Status_ERROR);
     close(sock);
     return NULL;
   }
 
   pthread_mutex_lock(data->data_mutex);
-  for(int i = 0; i < MAXCLIENTS; i++) {
-    if(data->clients[i]->u) {                                  // Is it used ?
-      if (data->clients[i]->username) {                        // Is the username non-null ?
-        if (!strcmp(data->clients[i]->username, clean_name)) { // Is is it a duplicate ?
+  for (int i = 0; i < MAXCLIENTS; i++) {
+    if (data->clients[i]->u) {                                    // Is it used ?
+      if (data->clients[i]->username) {                           // Is the username non-null ?
+        if (strcmp(data->clients[i]->username, username) == 0) {  // Is is it a duplicate ?
           duplicate = true;
           break;
         }
@@ -84,7 +82,7 @@ char *getusername(t_data* data, int sock) {
     return NULL; // Failed
   }
 
-  return clean_name;
+  return username;
 }
 
 /**
@@ -173,17 +171,20 @@ int msgsend(const int sock, const char* msg, const Status status_code) {
  * @param sock The socket descriptor of the client.
  * @return char* The received message, or NULL on failure.
  */
-char *getmsg(int sock) {
-  char    *msg;
+char *getmsg(int sock, size_t *len) {
+  char    *msg = NULL;
   ssize_t bytes_recv = 0;
+  if ( !len ) {
+    *len = BUFFSIZE;
+  }
 
-  msg = malloc(BUFFSIZE);        
+  msg = malloc(*len);        
   if (!msg) {
       perror("malloc");
       return NULL;
   }
 
-  bytes_recv = recv(sock, msg, BUFFSIZE - 1, 0);
+  bytes_recv = recv(sock, msg, *len - 1, 0);
   if (bytes_recv < 0) {
     perror("read");
     free(msg);
@@ -209,13 +210,3 @@ int check_username(char *str) {
   return 0;
 }
 
-/* Helper function */
-// Removes whitespaces (isspace from ctypes)
-char* trim_whitespace(char* str) { 
-  while(isspace((unsigned char)*str)) str++;
-  if(*str == '\0') return str;
-  char* end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
-  *(end+1) = '\0';
-  return str;
-}

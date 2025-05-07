@@ -33,7 +33,6 @@ typedef struct s_data {
 } t_data;
 
 int   init           (void);
-char *getmsg         (int sock);
 int   getconn        (t_data *socks);
 
 #endif /* CHATSERVER_SOCKET_H */

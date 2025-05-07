@@ -90,7 +90,7 @@ void *threadTarget(void* sdata) {
     if (new_sock == ERROR_NULL_DATA) {
       printf("FATAL : NULL passed in the treadTarget function !!\n");
       log_msg(LOG_FATAL, "NULL passed in the treadTarget function !!");
-      pthread_exit(1);
+      pthread_exit( (intptr_t*) 1);
     }
     
     if ( getpeername(new_sock, (struct sockaddr*)&address, &addrlen) != 0 ) {
@@ -113,7 +113,7 @@ void *threadTarget(void* sdata) {
       quit(data);
     }
 
-    username = malloc(MAXNAMSIZE);
+    username = malloc(MAXNAMESIZE);
     username = getusername(data, new_sock); // New client username
     if (!username) { 
       continue; // Connection closed in getusername
@@ -138,7 +138,7 @@ void *threadTarget(void* sdata) {
 
     printf("New client : %s\n",username);
     while (running) {
-      msg = getmsg(new_sock);
+      msg = getmsg(new_sock, NULL);
       if (msg != NULL) {
         if (strcmp(&msg[0],"/") == 0) {
           switch(parcmd(&msg,data)) {

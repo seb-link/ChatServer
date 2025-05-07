@@ -120,7 +120,7 @@ size_t authenticate_user( t_data *data , int client_sock )
   } 
 
   sleep(1);
-  result = getmsg(client_sock);
+  result = getmsg(client_sock, NULL);
 
   if ( !result ) {
     log_msg(LOG_ERROR, "Failed to receive response from client");
