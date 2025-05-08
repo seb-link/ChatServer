@@ -113,16 +113,16 @@ void *threadTarget(void* sdata) {
       quit(data);
     }
 
-    username = malloc(MAXNAMESIZE);
     username = getusername(data, new_sock); // New client username
     if (!username) {
       free(msg);
+      removeClient(data, new_sock);
       continue; // Connection closed in getusername
     }
 
     pthread_mutex_lock(data->data_mutex);
-    for(int i = 0; i < MAXCLIENTS; i++) {
-      if(data->clients[i]->sock == new_sock) {
+    for (int i = 0; i < MAXCLIENTS; i++) {
+      if (data->clients[i]->sock == new_sock) {
         data->clients[i]->username = strdupli(username);
         break;
       }
