@@ -115,7 +115,8 @@ void *threadTarget(void* sdata) {
 
     username = malloc(MAXNAMESIZE);
     username = getusername(data, new_sock); // New client username
-    if (!username) { 
+    if (!username) {
+      free(msg);
       continue; // Connection closed in getusername
     }
 
