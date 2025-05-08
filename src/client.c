@@ -22,10 +22,11 @@ const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
  */
 char *getusername(t_data* data, int sock) {
 
-  char *username   = NULL;
-  bool duplicate   = false;
+  char   *username  = NULL;
+  bool   duplicate  = false;
+  size_t len        = MAXNAMESIZE;
 
-  username = getmsg(sock, (size_t *) MAXNAMESIZE); // New client username
+  username = getmsg(sock, &len); // New client username
   
   if (!username) {
     printf("Connection closed before username received\n");
@@ -180,9 +181,10 @@ char *getmsg(int sock, size_t *len) {
     return NULL;
   }
 
-  msg = malloc(*len);        
+  msg = malloc(*len);
   if (!msg) {
       perror("malloc");
+      fprintf(stderr, "malloc failed to allocate %zu bytes.\n", *len);
       return NULL;
   }
 
