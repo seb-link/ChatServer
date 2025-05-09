@@ -172,23 +172,25 @@ int msgsend(const int sock, const char* msg, const Status status_code) {
  * @return char* The received message, or NULL on failure.
  */
 char *getmsg(int sock, size_t *len) {
-  char    *msg = NULL;
+  char    *msg       = NULL;
   ssize_t bytes_recv = 0;
+  size_t  length     = BUFFSIZE;
   if ( !len ) {
-    *len = BUFFSIZE;
+    length = *len;
   }
-  if ( *len < 1 ) {
+
+  if ( length < 1 ) {
     return NULL;
   }
 
-  msg = malloc(*len);
+  msg = malloc(length);
   if (!msg) {
       perror("malloc");
-      fprintf(stderr, "malloc failed to allocate %zu bytes.\n", *len);
+      fprintf(stderr, "malloc failed to allocate %zu bytes.\n", length);
       return NULL;
   }
 
-  bytes_recv = recv(sock, msg, *len - 1, 0);
+  bytes_recv = recv(sock, msg, length - 1, 0);
   if (bytes_recv < 0) {
     perror("read");
     free(msg);
