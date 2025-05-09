@@ -2,10 +2,13 @@
 #include "log.h"
 
 char* levels[] = {
-	"[FATAL] ", 
-	"[ERROR] ", 
-	"[WARN] ", 
-	"[INFO] "};
+  "[FATAL] ", 
+  "[ERROR] ", 
+  "[WARN] ", 
+  "[INFO] ",
+  "[DEBUG] "
+};
+
 FILE* log_file = NULL;
 
 int log_init(const char* filename) {

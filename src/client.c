@@ -25,6 +25,7 @@ char *getusername(t_data* data, int sock) {
   char   *username  = NULL;
   bool   duplicate  = false;
   size_t len        = MAXNAMESIZE;
+  size_t i          = 0;
 
   username = getmsg(sock, &len); // New client username
   
@@ -46,7 +47,7 @@ char *getusername(t_data* data, int sock) {
     return NULL; // Failed
   }
 
-  for (size_t i = 0; i < banned_username_len; i++) {
+  for (i = 0; i < banned_username_len; i++) {
     if (strcmp(username, banned_username[i]) == 0) {
       msgsend(sock, "ERROR: Invalid username", Status_ERROR);
       close(sock);
@@ -61,7 +62,7 @@ char *getusername(t_data* data, int sock) {
   }
 
   pthread_mutex_lock(data->data_mutex);
-  for (int i = 0; i < MAXCLIENTS; i++) {
+  for (i = 0; i < MAXCLIENTS; i++) {
     if (data->clients[i]->u) {                                    // Is it used ?
       if (data->clients[i]->username) {                           // Is the username non-null ?
         if (strcmp(data->clients[i]->username, username) == 0) {  // Is is it a duplicate ?
@@ -71,7 +72,6 @@ char *getusername(t_data* data, int sock) {
       }
     }
   }
-
   pthread_mutex_unlock(data->data_mutex);
 
   if (duplicate) {
@@ -175,7 +175,8 @@ char *getmsg(int sock, size_t *len) {
   char    *msg       = NULL;
   ssize_t bytes_recv = 0;
   size_t  length     = BUFFSIZE;
-  if ( !len ) {
+  
+  if ( len != NULL ) {
     length = *len;
   }
 
@@ -208,11 +209,15 @@ char *getmsg(int sock, size_t *len) {
 
 /* Helper function */
 int check_username(char *str) {
-  for (; *str != '\0'; str++) {
-      if (!isalnum((unsigned char)*str)) {
-          return 1;
-      }
+  size_t i = 0;
+
+  for (i = 0; i < strlen(str); ++i) {
+    if ( isalnum(str[i]) == 0 ) {
+      log_msg(LOG_DEBUG, "Username contains : \"%c\"", str[i]);
+      return 1;
+    }
   }
+
   return 0;
 }
 

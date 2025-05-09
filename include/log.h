@@ -7,7 +7,8 @@ typedef enum {
   LOG_FATAL,
   LOG_ERROR,
   LOG_WARN,
-  LOG_INFO
+  LOG_INFO,
+  LOG_DEBUG
 } LogLevel;
 
 extern char *levels[]; 
