@@ -13,6 +13,12 @@ uint8_t status_codes[] = {
 const size_t  banned_username_len =  3;
 const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
 
+/* Private/local function constructors */
+void  removeClient   (t_data *data, int sock);
+int   check_username (char *str);
+char  *remove_spaces (const char *str);
+/* Private/local function constructors */
+
 /**
  * @brief Retrieves the username of a client from the socket.
  *
@@ -31,19 +37,15 @@ char *getusername(t_data* data, int sock) {
   
   if (!username) {
     printf("Connection closed before username received\n");
-    close(sock);
-    removeClient(data, sock);
     log_msg(LOG_ERROR, "Client closed connection without sending a username");
     return NULL; // Failed
   }
 
   if (strlen(username) == 0) {
     printf("Empty username received\n");
-    msgsend(sock, "ERROR: Username cannot be empty\n", Status_ERROR);
+    (void) msgsend(sock, "ERROR: Username cannot be empty\n", Status_ERROR);
     log_msg(LOG_ERROR, "ERROR: Empty username received.");
     free(username);
-    close(sock);
-    removeClient(data, sock);
     return NULL; // Failed
   }
 
@@ -51,8 +53,6 @@ char *getusername(t_data* data, int sock) {
   if ( !cleanname ) {
     free(username);
     (void) msgsend(sock, "ERROR : Server side error", Status_ERROR);
-    close(sock);
-    removeClient(data, sock);
     return NULL;
   }
   free(username);
@@ -61,8 +61,6 @@ char *getusername(t_data* data, int sock) {
     if (strcmp(cleanname, banned_username[i]) == 0) {
       msgsend(sock, "ERROR: Invalid username", Status_ERROR);
       free(cleanname);
-      close(sock);
-      removeClient(data, sock);
       return NULL;
     }
   }
@@ -70,8 +68,6 @@ char *getusername(t_data* data, int sock) {
   if (check_username(cleanname)) {
     msgsend(sock, "ERROR: Username can only contain letters and numbers.", Status_ERROR);
     free(cleanname);
-    close(sock);
-    removeClient(data, sock);
     return NULL;
   }
 
@@ -91,8 +87,6 @@ char *getusername(t_data* data, int sock) {
   if (duplicate) {
     msgsend(sock, "ERROR: Username already taken\n", Status_ERROR);
     free(cleanname);
-    close(sock);
-    removeClient(data, sock);
     return NULL; // Failed
   }
 
@@ -223,7 +217,7 @@ char *getmsg(int sock, size_t *len) {
   return msg;
 }
 
-/* Helper function */
+/* Helper function (Private) */
 int check_username(char *str) {
   size_t i = 0;
 
@@ -237,7 +231,7 @@ int check_username(char *str) {
   return 0;
 }
 
-/* Helper function */
+/* Helper function (Private) */
 char *remove_spaces ( const char *str ) {
   char *result = NULL;
   size_t str_index, result_index = 0;
@@ -261,5 +255,15 @@ char *remove_spaces ( const char *str ) {
   result[strlen(str) + 1] = '\0';
 
   return result;
+}
+
+/* @brief The function to call when you need to remove a client.
+ *
+ * @param data Pointer to the server's data structure.
+ * @param sock The socket descriptor of the client to remove.
+ */
+void cleanup_client (t_data *data, int sock) {
+  close(sock);
+  removeClient(data, sock);
 }
 

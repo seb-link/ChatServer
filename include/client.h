@@ -15,12 +15,15 @@ typedef enum {
   Status_ERROR_KICKED // Resulting of the kick command
 } Status;
 
-void  broadcast      (t_data *data, char *msg, char *username);
-char  *getmsg        (int sock, size_t *len);
-char  *getusername   (t_data *data, int sock);
-void  removeClient   (t_data *data, int sock);
-int   check_username (char *str);
+/* Interacting functions */
 int   msgsend        (const int sock, const char* msg, const Status status_code); 
-char *remove_spaces  (const char *str);
+char  *getmsg        (int sock,      size_t *len);
+void  broadcast      (t_data *data,  char *msg, char *username);
+char  *getusername   (t_data *data,  int sock);
+
+/* Client management functions */
+void  cleanup_client (t_data *data, int sock);
+
+/* Helper functions */
 
 #endif /* CHATSERVER_CLIENT_H */

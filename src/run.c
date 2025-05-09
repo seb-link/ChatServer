@@ -106,6 +106,7 @@ void *threadTarget(void* sdata) {
     
     printf("Got connection !\n");
     log_msg(LOG_INFO, "Got connection from %s", ipstr);
+    
     msg = malloc(sizeof(char) * BUFFSIZE);
     if (!msg) {
       perror("malloc");
@@ -116,8 +117,8 @@ void *threadTarget(void* sdata) {
     username = getusername(data, new_sock); // New client username
     if (!username) {
       free(msg);
-      removeClient(data, new_sock);
-      continue; // Connection closed in getusername
+      cleanup_client(data, new_sock); 
+      continue; 
     }
 
     pthread_mutex_lock(data->data_mutex);
@@ -134,7 +135,8 @@ void *threadTarget(void* sdata) {
       log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
       free(username);
       free(msg);
-      break; /* Socket closing and client removal is handled in the authenticate_user function */
+      cleanup_client(data, new_sock);
+      break; 
     }
 
     printf("New client : %s\n",username);

@@ -81,6 +81,8 @@ challenge *generate_challenge(void) {
 
   server_hmac[hmac_len] = '\0';
 
+  print_hex(server_hmac, 32);
+
   result->hash = server_hmac;
   result->rand = random;
   return result;
@@ -97,24 +99,21 @@ challenge *generate_challenge(void) {
  */
 size_t authenticate_user( t_data *data , int client_sock ) 
 {
-  challenge* challenge;
-  char *result;
+  challenge* challenge = NULL;
+  char *result = NULL;
 
   challenge = generate_challenge();
   if ( !challenge ) { 
     printf("ERROR : Cloud not generate challenge ! Dropping connection...\n");
     (void) msgsend(client_sock, "ERROR : Server side problem !", Status_ERROR);
-    close(client_sock);
-    removeClient(data, client_sock);
     log_msg(LOG_ERROR, "[Auth] Cloud not generate challenge.");
     return AUTH_FAILED;
   }
   
   /* Send the random data to the client */
   if( msgsend(client_sock, (char* )challenge->rand, Status_SUCCESS) != EXIT_SUCCESS ) {
-    log_msg(LOG_ERROR, "Cloud not send challenge to client");
-    close(client_sock);
-    removeClient(data, client_sock);
+    log_msg(LOG_ERROR, "[Auth] Cloud not send challenge to client");
+    /* Free allocated memory */
     free(challenge->hash);
     free(challenge->rand);
     free(challenge);
@@ -125,9 +124,8 @@ size_t authenticate_user( t_data *data , int client_sock )
   result = getmsg(client_sock, NULL);
 
   if ( !result ) {
-    log_msg(LOG_ERROR, "Failed to receive response from client");
-    close(client_sock);
-    removeClient(data, client_sock);
+    log_msg(LOG_ERROR, "[Auth] Failed to receive response from client");
+    /* Free allocated memory */
     free(challenge->hash);
     free(challenge->rand);
     free(challenge);
@@ -135,10 +133,12 @@ size_t authenticate_user( t_data *data , int client_sock )
   }
 
   /* Server verification */
+  print_hex(challenge->hash, 32);
+  print_hex(result, 35);
   if ( CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) != 0 ) {
     (void) msgsend(client_sock, "ERROR : Invalid HMAC", Status_ERROR);
-    removeClient(data, client_sock);
-    close(client_sock);
+    log_msg(LOG_ERROR, "[Auth] The client sent a wrong HMAC");
+    /* Free allocated memory */
     free(result);
     free(challenge->hash);
     free(challenge->rand);
