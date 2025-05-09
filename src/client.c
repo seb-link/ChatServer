@@ -129,7 +129,7 @@ void removeClient(t_data *data, int sock) {
  * @param username The username of the sender.
  */
 void broadcast(t_data *data, char *msg, char *username) {
-  char *smsg = malloc(sizeof(username) + sizeof(msg) + 5); // message to send
+  char *smsg = malloc(MAXNAMESIZE + BUFFSIZE + 5); // message to send
   
   sprintf(smsg, "%s : %s", username, msg);
   pthread_mutex_lock(data->data_mutex);
