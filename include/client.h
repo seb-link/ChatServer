@@ -21,5 +21,6 @@ char  *getusername   (t_data *data, int sock);
 void  removeClient   (t_data *data, int sock);
 int   check_username (char *str);
 int   msgsend        (const int sock, const char* msg, const Status status_code); 
+char *remove_spaces  (const char *str);
 
 #endif /* CHATSERVER_CLIENT_H */

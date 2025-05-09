@@ -22,7 +22,7 @@ const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
  */
 char *getusername(t_data* data, int sock) {
 
-  char   *username  = NULL;
+  char   *username, *cleanname  = NULL;
   bool   duplicate  = false;
   size_t len        = MAXNAMESIZE;
   size_t i          = 0;
@@ -47,17 +47,31 @@ char *getusername(t_data* data, int sock) {
     return NULL; // Failed
   }
 
+  cleanname = remove_spaces(username);
+  if ( !cleanname ) {
+    free(username);
+    (void) msgsend(sock, "ERROR : Server side error", Status_ERROR);
+    close(sock);
+    removeClient(data, sock);
+    return NULL;
+  }
+  free(username);
+
   for (i = 0; i < banned_username_len; i++) {
-    if (strcmp(username, banned_username[i]) == 0) {
+    if (strcmp(cleanname, banned_username[i]) == 0) {
       msgsend(sock, "ERROR: Invalid username", Status_ERROR);
+      free(cleanname);
       close(sock);
+      removeClient(data, sock);
       return NULL;
     }
   }
 
-  if (check_username(username)) {
+  if (check_username(cleanname)) {
     msgsend(sock, "ERROR: Username can only contain letters and numbers.", Status_ERROR);
+    free(cleanname);
     close(sock);
+    removeClient(data, sock);
     return NULL;
   }
 
@@ -76,13 +90,13 @@ char *getusername(t_data* data, int sock) {
 
   if (duplicate) {
     msgsend(sock, "ERROR: Username already taken\n", Status_ERROR);
-    free(username);
+    free(cleanname);
     close(sock);
     removeClient(data, sock);
     return NULL; // Failed
   }
 
-  return username;
+  return cleanname;
 }
 
 /**
@@ -190,6 +204,8 @@ char *getmsg(int sock, size_t *len) {
       fprintf(stderr, "malloc failed to allocate %zu bytes.\n", length);
       return NULL;
   }
+  
+  memset(msg, 0, length);
 
   bytes_recv = recv(sock, msg, length - 1, 0);
   if (bytes_recv < 0) {
@@ -212,12 +228,38 @@ int check_username(char *str) {
   size_t i = 0;
 
   for (i = 0; i < strlen(str); ++i) {
-    if ( isalnum(str[i]) == 0 ) {
+    if ( isalnum(str[i]) == 0 && str[i] != 0) {
       log_msg(LOG_DEBUG, "Username contains : \"%c\"", str[i]);
       return 1;
     }
   }
 
   return 0;
+}
+
+/* Helper function */
+char *remove_spaces ( const char *str ) {
+  char *result = NULL;
+  size_t str_index, result_index = 0;
+
+  result = malloc( strlen(str) + 1 );
+  if (!result) {
+    perror("malloc");
+    log_msg(LOG_ERROR, "malloc failed to allocate %d");
+    return NULL;
+  }
+  
+  memset(result, 0, strlen(str) + 1);
+
+  for (str_index = 0; str_index < strlen(str); ++str_index) {
+    if ( !isspace(str[str_index]) ) {
+      result[result_index] = str[str_index];
+      ++result_index;
+    }
+  }
+
+  result[strlen(str) + 1] = '\0';
+
+  return result;
 }
 
