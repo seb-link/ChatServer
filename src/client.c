@@ -79,7 +79,7 @@ char *getusername(t_data* data, int sock) {
   for (i = 0; i < MAXCLIENTS; i++) {
     if (data->clients[i]->u) {                                    // Is it used ?
       if (data->clients[i]->username) {                           // Is the username non-null ?
-        if (strcmp(data->clients[i]->username, username) == 0) {  // Is is it a duplicate ?
+        if (strcmp(data->clients[i]->username, cleanname) == 0) { // Is is it a duplicate ?
           duplicate = true;
           break;
         }
