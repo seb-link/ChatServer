@@ -174,7 +174,6 @@ void *threadTarget(void* sdata) {
 
             case CLI_EXIT:
               free(msg);
-              close(new_sock);
               printf("Client Exited.\n");
               running = false; // Client exited so bye bye
               continue;
@@ -206,7 +205,6 @@ void *threadTarget(void* sdata) {
         continue; // Will close the socket
       } // If msg = 0 then no msg was received
     } // while (running) -> while connection alive
-    close(new_sock);
     cleanup_client(data, new_sock);
     log_msg(LOG_INFO, "Client %s disconnected", username);
   } // while (true)
