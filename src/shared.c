@@ -14,10 +14,10 @@ void print_hex(const unsigned char *data, size_t len) {
 int in(char* arr[], ssize_t size, const char* target) {
   for (ssize_t i = 0; i < size; i++) {
     if (arr[i] != NULL && strcmp(arr[i], target) == 0) {
-      return 1; 
+      return i;
     }
   }
-  return 0;
+  return -1;
 }
 
 /* Make the server stop */

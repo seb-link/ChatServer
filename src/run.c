@@ -5,10 +5,11 @@
 #include "run.h"
 #include "client.h"
 #include "log.h"
+#include "config.h"
 
 void* threadTarget(void* data);
 
-void run(void) {  
+void run(const char *configFilePath) {  
   t_data data;
   pthread_mutex_t data_mutex;
   pthread_mutex_t server_mutex;
@@ -28,12 +29,19 @@ void run(void) {
     printf("FATAL : Cloud not initialize socket.\n");
     return;
   }
-  
-  if (crypto_init() != EXIT_SUCCESS) {
-    printf("FATAL : Cloud not read from keyfile.\n");
+
+  if (config_init(configFilePath) != EXIT_SUCCESS) {
+    printf("FATAL : Error happened during the config file parsing.\n");
     return;
   }
-  
+ 
+  if (app_config.authEnabled == 1) {
+    if (crypto_init() != EXIT_SUCCESS) {
+      printf("FATAL : Cloud not read from keyfile.\n");
+      return;
+    }
+  }
+
   if (log_init("log.log") != EXIT_SUCCESS) {
     printf("FATAL : Cloud not initialize log file.\n");
     return;
@@ -78,6 +86,7 @@ void *threadTarget(void* sdata) {
     if (new_sock == ERROR_SERVER_FULL) {
       printf("ERROR : The server is full !\n");
       log_msg(LOG_ERROR, "The server is full, dropping connection !");
+      (void) msgsend(new_sock, "ERROR : The server is full", Status_ERROR);
       continue;
     }
 
@@ -130,13 +139,15 @@ void *threadTarget(void* sdata) {
     }
     pthread_mutex_unlock(data->data_mutex);
 
-    // Client authentication
-    if ( authenticate_user(data, new_sock) != AUTH_SUCCESS) {
-      log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
-      free(username);
-      free(msg);
-      cleanup_client(data, new_sock);
-      break; 
+    if (app_config.authEnabled == 1) {
+      // Client authentication
+      if ( authenticate_user(data, new_sock) != AUTH_SUCCESS ) {
+        log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
+        free(username);
+        free(msg);
+        cleanup_client(data, new_sock);
+        break; 
+      }
     }
 
     printf("New client : %s\n",username);
@@ -196,7 +207,7 @@ void *threadTarget(void* sdata) {
       } // If msg = 0 then no msg was received
     } // while (running) -> while connection alive
     close(new_sock);
-    removeClient(data, new_sock);
+    cleanup_client(data, new_sock);
     log_msg(LOG_INFO, "Client %s disconnected", username);
   } // while (true)
   return (void*) (intptr_t) exitcode;

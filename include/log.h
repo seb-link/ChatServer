@@ -13,6 +13,7 @@ typedef enum {
 
 extern char *levels[]; 
 extern FILE *log_file;
+extern char *levels[5];
 
 int  log_init  (const char *filename);
 void log_close (void);

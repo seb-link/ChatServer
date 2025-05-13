@@ -35,7 +35,7 @@ int parcmd(char **msg, t_data *data) {
   char *current, *command = NULL;
 
   current = strtok(*msg," ");
-  if (!in(commands, CMD_NUM, *msg)) return CMD_INVALID;
+  if (in(commands, CMD_NUM, *msg) < 0) return CMD_INVALID;
   // No args commands
   
   if (!strcmp(current, "/exit")) return CLI_EXIT;

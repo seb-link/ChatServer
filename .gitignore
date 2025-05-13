@@ -3,3 +3,4 @@ obj/*
 key.key
 log.log
 .vscode/*
+config.ini

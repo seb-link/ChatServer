@@ -1,7 +1,8 @@
 #include "common.h"
 #include "log.h"
+#include "config.h"
 
-char* levels[] = {
+char *levels[5] = {
   "[FATAL] ", 
   "[ERROR] ", 
   "[WARN] ", 
@@ -34,6 +35,8 @@ void log_close(void) {
 
 void log_msg(LogLevel level, const char* msg, ...) {
   if (!log_file) return;
+  if (app_config.logLevel < level) return; 
+  
   va_list args;
   char timest[20];
   time_t now;

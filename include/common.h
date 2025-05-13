@@ -15,6 +15,8 @@
 #define MAXCLIENTS 2
 #define PORT      8090
 
+#define DO_AUTH 1
+
 typedef struct {
   char *username;
   int sock;
