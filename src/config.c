@@ -6,6 +6,14 @@
 const int logLevelsLen = sizeof(levels) / sizeof(levels[0]); 
 Config app_config;
 
+const char *levels_config[5] = {
+  "FATAL",
+  "ERROR",
+  "WARN",
+  "INFO",
+  "DEBUG"
+};
+
 static int handler ( void *user, const char *section, const char *name, const char *value) {
   Config *cfg = (Config *) user;
 
@@ -23,7 +31,7 @@ static int handler ( void *user, const char *section, const char *name, const ch
   }
 
   if ( strcmp(name, "log-level") == 0 ) {
-    int index = in(levels, logLevelsLen, value);
+    int index = in(levels_config, logLevelsLen, value);
     if ( index < 0 ) {
       snprintf(cfg->error, sizeof(cfg->error), 
 	      "ERROR : Unknown log level value : %s", value);
@@ -37,13 +45,14 @@ static int handler ( void *user, const char *section, const char *name, const ch
 }
 
 int config_init ( const char *configFilePath ) {
-   memset(&app_config, 0, sizeof(app_config));
+  memset(&app_config, 0, sizeof(app_config));
   
+  app_config.authEnabled = -1;
+  app_config.logLevel    = 2147483647;
+
   int error_line = ini_parse(configFilePath, handler, &app_config);
   if (error_line < 0) {
     printf("INFO : Config file not found : using default value.\n");
-    app_config.authEnabled = 1;
-    app_config.logLevel = in(levels, logLevelsLen, "INFO");
   }
 
   if (error_line > 0) {
@@ -55,7 +64,9 @@ int config_init ( const char *configFilePath ) {
     return EXIT_FAILURE;
   }
 
-
+  if (app_config.authEnabled < 0)        app_config.authEnabled = 1; 
+  if (app_config.logLevel == 2147483647) app_config.logLevel = in(levels_config, logLevelsLen, "INFO");
+  
   return EXIT_SUCCESS;
 }
 

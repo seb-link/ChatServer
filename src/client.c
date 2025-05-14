@@ -60,6 +60,7 @@ char *getusername(t_data* data, int sock) {
   for (i = 0; i < banned_username_len; i++) {
     if (strcmp(cleanname, banned_username[i]) == 0) {
       msgsend(sock, "ERROR: Invalid username", Status_ERROR);
+      log_msg(LOG_ERROR, "ERROR: Username in banned username");
       free(cleanname);
       return NULL;
     }
@@ -67,6 +68,7 @@ char *getusername(t_data* data, int sock) {
 
   if (check_username(cleanname)) {
     msgsend(sock, "ERROR: Username can only contain letters and numbers.", Status_ERROR);
+    log_msg(LOG_ERROR, "ERROR: The username contains forbidden characters.");
     free(cleanname);
     return NULL;
   }
@@ -86,6 +88,7 @@ char *getusername(t_data* data, int sock) {
 
   if (duplicate) {
     msgsend(sock, "ERROR: Username already taken\n", Status_ERROR);
+    log_msg(LOG_ERROR, "ERROR: Another user is already logged in with that username.");
     free(cleanname);
     return NULL; // Failed
   }
@@ -102,7 +105,7 @@ char *getusername(t_data* data, int sock) {
 void removeClient(t_data *data, int sock) {
   
   pthread_mutex_lock(data->data_mutex);
-  
+ 
   for (int i = 0; i < MAXCLIENTS; i++) {    
     if (data->clients[i]->sock == sock && data->clients[i]->u == true) {
     
@@ -132,15 +135,15 @@ void broadcast(t_data *data, char *msg, char *username) {
   char *smsg = malloc(MAXNAMESIZE + BUFFSIZE + 5); // message to send
   
   sprintf(smsg, "%s : %s", username, msg);
-  pthread_mutex_lock(data->data_mutex);
   for (int i = 0; i<MAXCLIENTS; i++) {
     if ( data->clients[i]->u && data->clients[i]->sock > 0 ) {
-      if (msgsend(data->clients[i]->sock, smsg, Status_SUCCESS) != 0) {
-        removeClient(data, data->clients[i]->sock);
+      if ( strcmp(data->clients[i]->username, username) != 0 ) {
+        if ( msgsend(data->clients[i]->sock, smsg, Status_SUCCESS) != 0 ) {
+          cleanup_client(data, data->clients[i]->sock);
+        }
       }
     }
   }
-  pthread_mutex_unlock(data->data_mutex);
   
   free(smsg);
   return;

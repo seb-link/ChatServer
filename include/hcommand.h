@@ -14,6 +14,6 @@ static char *commands[] = {"/exit","/stop","/kick"};
 #define CMD_PERM_ERR   5  // Command permission error
 #define KICK_NOTFOUND  6  // Kick function : user not found 
 
-int parcmd(char **msg, t_data *data);
+int parcmd(char *originalCmd, t_data *data);
 
 #endif /* CHATSERVER_COMMAND_H */

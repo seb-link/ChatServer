@@ -155,7 +155,7 @@ void *threadTarget(void* sdata) {
       msg = getmsg(new_sock, NULL);
       if (msg != NULL) {
         if (msg[0] == '/') {
-          switch(parcmd(&msg,data)) {
+          switch (parcmd(msg,data)) {
             case CMD_INVALID :
               if(msgsend(new_sock, (char* )"WARN  : Command not found", Status_WARNING)) {
                 log_msg(LOG_ERROR, "Error sending message to client");
@@ -199,7 +199,7 @@ void *threadTarget(void* sdata) {
           printf("%s : %s\n", username, msg);
           broadcast(data, msg, username); 
         } 
-      } /* if (msg != NULL) -> if there were no error */ else if (msg != 0) {
+      } else {
         log_msg(LOG_ERROR, "Client broke connection");
         running = false;
         continue; // Will close the socket

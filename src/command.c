@@ -30,21 +30,23 @@ int kick(char *username, t_data *data) {
 }
 
 /* Doesn't work at all*/
-int parcmd(char **msg, t_data *data) {
-  return 0; /* It doesn't work so i put this for now */ 
-  char *current, *command = NULL;
+int parcmd(char *originalCmd, t_data *data) {
+  char *current, *command, *cleanCmd = NULL;
 
-  current = strtok(*msg," ");
-  if (in(commands, CMD_NUM, *msg) < 0) return CMD_INVALID;
-  // No args commands
+  cleanCmd = remove_newlines( originalCmd );
+  printf("Command issued ! : \"%s\"\n", cleanCmd);
   
+
+  current = strtok(cleanCmd," ");
+  if (in(commands, CMD_NUM, cleanCmd) < 0) return CMD_INVALID;
+  
+  // No args commands
   if (!strcmp(current, "/exit")) return CLI_EXIT;
   if (!strcmp(current, "/stop")) return QUIT;
-  if (!strcmp(current, "/kick")) command = "kick";
-  current = strtok(*msg," ");
+  current = strtok(cleanCmd," ");
   
   // first arg
-  if (!strcmp(command, "kick")) return kick(current, data);
-  
+  if (!strcmp(current, "/kick")) command = "kick";
+
   return EXIT_FAILURE;  
 }

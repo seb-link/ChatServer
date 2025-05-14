@@ -20,7 +20,23 @@ int in(char* arr[], ssize_t size, const char* target) {
   return -1;
 }
 
-/* Make the server stop */
+/* Helper function */
+char *remove_newlines(const char *str) {
+  char *result = malloc(strlen(str) + 1);
+  size_t str_index, result_index = 0;
+
+  for (str_index = 0; str_index < strlen(str); ++str_index) {
+    if (str[str_index] != '\n') {
+      result[result_index] = str[str_index];
+      ++result_index;
+    }
+  }
+
+  result[strlen(str) + 1] = '\0';
+  return result;
+}
+
+/* make the server stop */
 void quit(t_data *data) {
   log_close();
   data->reqshut = true;

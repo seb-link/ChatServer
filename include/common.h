@@ -15,8 +15,6 @@
 #define MAXCLIENTS 2
 #define PORT      8090
 
-#define DO_AUTH 1
-
 typedef struct {
   char *username;
   int sock;
@@ -32,9 +30,11 @@ typedef struct s_data {
 
 #include "socket.h"
 
-int   in       (char *arr[], ssize_t size, const char *target);
-void  quit     (t_data *data);
-char *strdupli (const char *s);
-void  print_hex(const unsigned char *data, size_t len);
+int   in               (char *arr[], ssize_t size, const char *target);
+void  quit             (t_data *data);
+char  *strdupli        (const char *s);
+void  print_hex        (const unsigned char *data, size_t len);
+char  *remove_newlines (const char *str);
 
 #endif /* CHATSERVER_COMMON_H */
+

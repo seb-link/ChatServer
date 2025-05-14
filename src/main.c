@@ -12,12 +12,12 @@ int main(int argc, char **argv) {
   char *configFilePath = malloc(CONFIG_NAME_LENGTH + 1);
   
   if (argc != 2) {
-    configFilePath = "config.ini";
+    snprintf(configFilePath, CONFIG_NAME_LENGTH, "config.ini");
   } else {
     snprintf(configFilePath, CONFIG_NAME_LENGTH, "%s", argv[1]);
   }
 
-  configFilePath[CONFIG_NAME_LENGTH + 1] = '\0';
+  configFilePath[CONFIG_NAME_LENGTH] = '\0';
 
   run(configFilePath);
   

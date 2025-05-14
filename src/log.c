@@ -35,6 +35,7 @@ void log_close(void) {
 
 void log_msg(LogLevel level, const char* msg, ...) {
   if (!log_file) return;
+  printf("config : %zu, level : %zu, %d\n", app_config.logLevel ,level, app_config.logLevel < level);
   if (app_config.logLevel < level) return; 
   
   va_list args;
