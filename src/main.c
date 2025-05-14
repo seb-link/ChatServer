@@ -4,7 +4,7 @@
 #include "run.h"
 
 int main(int argc, char **argv) {
-  if (argc > 3) {
+  if (argc >= 3) {
     fprintf(stderr, "Too much arguments");
     return 1;
   }
