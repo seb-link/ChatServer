@@ -23,13 +23,13 @@ static int handler ( void *user, const char *section, const char *name, const ch
   }
 
   if ( strcmp(name, "log-level") == 0 ) {
-   if ( in(levels, logLevelsLen, name) < 0 ) {
+    int index = in(levels, logLevelsLen, value);
+    if ( index < 0 ) {
       snprintf(cfg->error, sizeof(cfg->error), 
 	      "ERROR : Unknown log level value : %s", value);
       return 0;
-   }
-   int index = in(levels, logLevelsLen, value);
-   cfg->logLevel = (unsigned int) index;
+    }
+    cfg->logLevel = (unsigned int) index;
   }
 
 
