@@ -26,6 +26,6 @@ extern char *sharkey;  // Declare sharkey as extern
 
 int        crypto_init        (void);
 challenge *generate_challenge (void);
-size_t     authenticate_user  ( t_data *data , int client_sock );
+size_t     authenticate_user  ( int client_sock );
 
 #endif /* CHATSERVER_CRYPTO_H */

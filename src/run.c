@@ -141,7 +141,7 @@ void *threadTarget(void* sdata) {
 
     if (app_config.authEnabled == 1) {
       // Client authentication
-      if ( authenticate_user(data, new_sock) != AUTH_SUCCESS ) {
+      if ( authenticate_user(new_sock) != AUTH_SUCCESS ) {
         log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
         free(username);
         free(msg);
@@ -154,7 +154,7 @@ void *threadTarget(void* sdata) {
     while (running) {
       msg = getmsg(new_sock, NULL);
       if (msg != NULL) {
-        if (strcmp(&msg[0],"/") == 0) {
+        if (msg[0] == '/') {
           switch(parcmd(&msg,data)) {
             case CMD_INVALID :
               if(msgsend(new_sock, (char* )"WARN  : Command not found", Status_WARNING)) {

@@ -28,7 +28,8 @@ static int handler ( void *user, const char *section, const char *name, const ch
 	      "ERROR : Unknown log level value : %s", value);
       return 0;
    }
-   cfg->logLevel = in(levels, logLevelsLen, value);
+   int index = in(levels, logLevelsLen, value);
+   cfg->logLevel = (unsigned int) index;
   }
 
 

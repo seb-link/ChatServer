@@ -97,7 +97,7 @@ challenge *generate_challenge(void) {
  * @param client_sock The socket descriptor for the client connection.
  * @return size_t Returns AUTH_SUCCESS if authentication is successful, AUTH_FAILED otherwise.
  */
-size_t authenticate_user( t_data *data , int client_sock ) 
+size_t authenticate_user( int client_sock ) 
 {
   challenge* challenge = NULL;
   char *result = NULL;
@@ -133,8 +133,6 @@ size_t authenticate_user( t_data *data , int client_sock )
   }
 
   /* Server verification */
-  print_hex(challenge->hash, 32);
-  print_hex(result, 35);
   if ( CRYPTO_memcmp(challenge->hash, result, SHA256_DIGEST_LENGTH) != 0 ) {
     (void) msgsend(client_sock, "ERROR : Invalid HMAC", Status_ERROR);
     log_msg(LOG_ERROR, "[Auth] The client sent a wrong HMAC");

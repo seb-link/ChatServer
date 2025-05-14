@@ -2,8 +2,8 @@
 #define CHATSERVER_CONFIG_H
 
 typedef struct {
+  unsigned int logLevel;
   int authEnabled;
-  int logLevel;
   char error[256];
 } Config;
 
