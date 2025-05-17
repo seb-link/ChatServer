@@ -24,6 +24,4 @@ char  *getusername   (int sock);
 /* Client management functions */
 void  removeClient   (int sock);
 
-/* Helper functions */
-
 #endif /* CHATSERVER_CLIENT_H */
