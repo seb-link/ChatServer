@@ -40,7 +40,7 @@ char *remove_newlines(const char *str) {
 void quit(void) {
   log_close();
   data.reqshut = true;
-  for (int i = 0; i< MAXCLIENTS; i++) {
+  for (int i = 0; i < MAXCLIENTS; i++) {
     if (data.clients[i].u == true) {
       (void) msgsend(data.clients[i].sock, "ERROR : The server is shutting down", Status_ERROR);
       close(data.clients[i].sock);

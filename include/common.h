@@ -21,10 +21,11 @@ typedef struct {
   bool u;
 } Client;
 
+/* Server's thread-shared data structure */
 typedef struct s_data {
-  pthread_mutex_t  *data_mutex;
-  pthread_mutex_t  *server_mutex;
-  Client           clients[MAXCLIENTS];
+  pthread_mutex_t  *data_mutex;         /* Data mutex : used when accessing clients */
+  pthread_mutex_t  *server_mutex;       /* Server mutex : used when getting connections */
+  Client           clients[MAXCLIENTS]; /* clients : Array of all connected clients */
   bool             reqshut;
 } t_data;
 
