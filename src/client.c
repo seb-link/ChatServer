@@ -182,6 +182,7 @@ int msgsend(const int sock, const char* msg, const Status status_code) {
  * @brief Receives a message from a client.
  *
  * @param sock The socket descriptor of the client.
+ * @param len  Pointer to the desired message length null-terminator non-included, if NULL BUFFSIZE.
  * @return char* The received message, or NULL on failure.
  */
 char *getmsg(int sock, size_t *len) {
