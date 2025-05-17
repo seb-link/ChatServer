@@ -24,14 +24,16 @@ typedef struct {
 typedef struct s_data {
   pthread_mutex_t  *data_mutex;
   pthread_mutex_t  *server_mutex;
-  Client           (*clients)[MAXCLIENTS];
+  Client           clients[MAXCLIENTS];
   bool             reqshut;
 } t_data;
 
 #include "socket.h"
 
+extern t_data data;
+
 int   in               (char *arr[], ssize_t size, const char *target);
-void  quit             (t_data *data);
+void  quit             (void);
 char  *strdupli        (const char *s);
 void  print_hex        (const unsigned char *data, size_t len);
 char  *remove_newlines (const char *str);

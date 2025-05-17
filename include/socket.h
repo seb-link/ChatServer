@@ -19,6 +19,6 @@ static struct sockaddr_in address;
 static socklen_t          addrlen;
 
 int   init           (void);
-int   getconn        (t_data *socks);
+int   getconn        (void);
 
 #endif /* CHATSERVER_SOCKET_H */

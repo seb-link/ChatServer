@@ -14,7 +14,7 @@ const size_t  banned_username_len =  3;
 const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
 
 /* Private/local function constructors */
-void  removeClient   (t_data *data, int sock);
+void  removeClient   (int sock);
 int   check_username (char *str);
 char  *remove_spaces (const char *str);
 /* Private/local function constructors */
@@ -26,7 +26,7 @@ char  *remove_spaces (const char *str);
  * @param sock The socket descriptor for the client connection.
  * @return char* The cleaned username if successful, NULL otherwise.
  */
-char *getusername(t_data* data, int sock) {
+char *getusername(int sock) {
 
   char   *username, *cleanname  = NULL;
   bool   duplicate  = false;
@@ -73,18 +73,18 @@ char *getusername(t_data* data, int sock) {
     return NULL;
   }
 
-  pthread_mutex_lock(data->data_mutex);
+  pthread_mutex_lock(data.data_mutex);
   for (i = 0; i < MAXCLIENTS; i++) {
-    if (data->clients[i]->u) {                                    // Is it used ?
-      if (data->clients[i]->username) {                           // Is the username non-null ?
-        if (strcmp(data->clients[i]->username, cleanname) == 0) { // Is is it a duplicate ?
+    if (data.clients[i].u) {                                    // Is it used ?
+      if (data.clients[i].username) {                           // Is the username non-null ?
+        if (strcmp(data.clients[i].username, cleanname) == 0) { // Is is it a duplicate ?
           duplicate = true;
           break;
         }
       }
     }
   }
-  pthread_mutex_unlock(data->data_mutex);
+  pthread_mutex_unlock(data.data_mutex);
 
   if (duplicate) {
     msgsend(sock, "ERROR: Username already taken\n", Status_ERROR);
@@ -102,24 +102,24 @@ char *getusername(t_data* data, int sock) {
  * @param data Pointer to the server's data structure.
  * @param sock The socket descriptor of the client to remove.
  */
-void removeClient(t_data *data, int sock) {
+void removeClient(int sock) {
   
-  pthread_mutex_lock(data->data_mutex);
+  pthread_mutex_lock(data.data_mutex);
  
   for (int i = 0; i < MAXCLIENTS; i++) {    
-    if (data->clients[i]->sock == sock && data->clients[i]->u == true) {
+    if (data.clients[i].sock == sock && data.clients[i].u == true) {
     
-      data->clients[i]->u = false;
-      if (data->clients[i]->username) {
-        printf("Client %s Disconnected !\n", data->clients[i]->username);
-        free(data->clients[i]->username);
-        data->clients[i]->username = NULL;
+      data.clients[i].u = false;
+      if (data.clients[i].username) {
+        printf("Client %s Disconnected !\n", data.clients[i].username);
+        free(data.clients[i].username);
+        data.clients[i].username = NULL;
       }
 
     }
   }
 
-  pthread_mutex_unlock(data->data_mutex);
+  pthread_mutex_unlock(data.data_mutex);
 
   return;
 }
@@ -131,18 +131,20 @@ void removeClient(t_data *data, int sock) {
  * @param msg The message to broadcast.
  * @param username The username of the sender.
  */
-void broadcast(t_data *data, char *msg, char *username) {
-  char *smsg = malloc(MAXNAMESIZE + BUFFSIZE + 5); // message to send
+void broadcast(char *msg, char *username) {
+  size_t smsg_len = MAXNAMESIZE + BUFFSIZE + 5;
+  char *smsg = malloc(smsg_len); // message to send
+
   
   sprintf(smsg, "%s : %s", username, msg);
-  for (int i = 0; i<MAXCLIENTS; i++) {
-    if ( data->clients[i]->u && data->clients[i]->sock > 0 ) {
-      if ( strcmp(data->clients[i]->username, username) != 0 ) {
-        if ( msgsend(data->clients[i]->sock, smsg, Status_SUCCESS) != 0 ) {
-          cleanup_client(data, data->clients[i]->sock);
-        }
-      }
-    }
+  smsg[smsg_len - 1] = '\0';
+  for (size_t i = 0; i < MAXCLIENTS; ++i) {
+    printf("%d\n", data.clients[i].u);
+    if ( data.clients[i].u != 1 || data.clients[i].sock <= 0 ) continue;
+    if ( strcmp(data.clients[i].username, username) != 0 ) continue;
+    if ( msgsend(data.clients[i].sock, smsg, Status_SUCCESS) == EXIT_SUCCESS ) continue;
+    
+    cleanup_client(data.clients[i].sock);
   }
   
   free(smsg);
@@ -265,8 +267,8 @@ char *remove_spaces ( const char *str ) {
  * @param data Pointer to the server's data structure.
  * @param sock The socket descriptor of the client to remove.
  */
-void cleanup_client (t_data *data, int sock) {
+void cleanup_client (int sock) {
   close(sock);
-  removeClient(data, sock);
+  removeClient(sock);
 }
 

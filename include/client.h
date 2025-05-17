@@ -17,12 +17,12 @@ typedef enum {
 
 /* Interacting functions */
 int   msgsend        (const int sock, const char* msg, const Status status_code); 
-char  *getmsg        (int sock,      size_t *len);
-void  broadcast      (t_data *data,  char *msg, char *username);
-char  *getusername   (t_data *data,  int sock);
+char  *getmsg        (int sock, size_t *len);
+void  broadcast      (char *msg, char *username);
+char  *getusername   (int sock);
 
 /* Client management functions */
-void  cleanup_client (t_data *data, int sock);
+void  cleanup_client (int sock);
 
 /* Helper functions */
 

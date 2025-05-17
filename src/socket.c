@@ -36,40 +36,36 @@ int init(void) {
   return 0;
 }
 
-int getconn(t_data *socks) {
-  if (socks == NULL) {
-    fprintf(stderr, "Error: NULL data passed to getconn\n");
-    return ERROR_NULL_DATA;
-  }
+int getconn(void) {
  
   bool alloc = false;
   int new_sock = 0;
   
   /* Listen for connection (one thread at a time) */
-  pthread_mutex_lock(socks->server_mutex);
+  pthread_mutex_lock(data.server_mutex);
   new_sock = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-  pthread_mutex_unlock(socks->server_mutex);
+  pthread_mutex_unlock(data.server_mutex);
 
   if (new_sock < 0) {
     perror("accept");
     return ERROR_ACCEPT_ERROR;
   }
 
-  if (socks->reqshut == true) {
+  if (data.reqshut == true) {
     pthread_exit(0);
   }
 
-  pthread_mutex_lock(socks->data_mutex);
+  pthread_mutex_lock(data.data_mutex);
   for (int i = 0; i < MAXCLIENTS; i++) {
-    if (socks->clients[i]->u == false) {
-      socks->clients[i]->u = true;
-      socks->clients[i]->sock = new_sock;
-      socks->clients[i]->username = NULL;
+    if (data.clients[i].u == false) {
+      data.clients[i].u = true;
+      data.clients[i].sock = new_sock;
+      data.clients[i].username = NULL;
       alloc = true;
       break;
     }
   }
-  pthread_mutex_unlock(socks->data_mutex);
+  pthread_mutex_unlock(data.data_mutex);
 
   if (alloc == 0) {
     close(new_sock);

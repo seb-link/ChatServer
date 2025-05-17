@@ -7,23 +7,29 @@
 #include "log.h"
 #include "config.h"
 
-void* threadTarget(void* data);
+void *threadTarget(void *data);
+
+t_data data;
 
 void run(const char *configFilePath) {  
-  t_data data;
   pthread_mutex_t data_mutex;
   pthread_mutex_t server_mutex;
+  
   pthread_t threads[MAXCLIENTS];
-  Client clients[MAXCLIENTS];
-  Client (*Pclients)[MAXCLIENTS] = &clients;
-  size_t i = 0; 
+
+  Client clients[MAXCLIENTS] = { 0 };
+
+  size_t i;
+  
+  memset(clients, 0, MAXCLIENTS * sizeof(Client)); /* Redundant but harmless */
 
   pthread_mutex_init(&data_mutex, NULL);
   pthread_mutex_init(&server_mutex, NULL);
+  
   data.data_mutex = &data_mutex;
   data.server_mutex = &server_mutex;
   
-  data.clients = Pclients;
+  memcpy(data.clients, clients, sizeof(Client) * MAXCLIENTS);
 
   if (init() != EXIT_SUCCESS) {
     printf("FATAL : Cloud not initialize socket.\n");
@@ -49,8 +55,6 @@ void run(const char *configFilePath) {
 
   printf("Finished initializing.\n");
 
-  memset(clients, 0, MAXCLIENTS * sizeof(Client));
-
   for (i = 0; i < MAXCLIENTS; i++) {
     pthread_create(&threads[i], NULL, threadTarget, &data);
   }
@@ -62,7 +66,7 @@ void run(const char *configFilePath) {
     pthread_join(threads[i], 0);
   }
 
-  quit(&data);
+  quit();
 
   return;
 }
@@ -71,8 +75,6 @@ void run(const char *configFilePath) {
 void *threadTarget(void* sdata) {
   int exitcode = 0;
   bool running = 1;
-  t_data* data;
-  data = (t_data*) sdata;
 
   int new_sock = 0;	
   char ipstr[INET_ADDRSTRLEN];
@@ -81,7 +83,7 @@ void *threadTarget(void* sdata) {
   char *msg, *username = NULL;
 
   while (true) {
-    new_sock = getconn(data);
+    new_sock = getconn();
 
     if (new_sock == ERROR_SERVER_FULL) {
       printf("ERROR : The server is full !\n");
@@ -93,7 +95,7 @@ void *threadTarget(void* sdata) {
     if (new_sock == ERROR_ACCEPT_ERROR) {
       printf("FATAL : Cloud not get connections (Error on accept) !\n");
       log_msg(LOG_FATAL, "Cloud not get connections (Error on accept)");
-      quit(data);
+      quit();
     }
 
     if (new_sock == ERROR_NULL_DATA) {
@@ -120,24 +122,24 @@ void *threadTarget(void* sdata) {
     if (!msg) {
       perror("malloc");
       log_msg(LOG_FATAL, "Cloud not allocate memory using malloc");
-      quit(data);
+      quit();
     }
 
-    username = getusername(data, new_sock); // New client username
+    username = getusername(new_sock); // New client username
     if (!username) {
       free(msg);
-      cleanup_client(data, new_sock); 
+      cleanup_client(new_sock); 
       continue; 
     }
 
-    pthread_mutex_lock(data->data_mutex);
+    pthread_mutex_lock(data.data_mutex);
     for (int i = 0; i < MAXCLIENTS; i++) {
-      if (data->clients[i]->sock == new_sock) {
-        data->clients[i]->username = strdupli(username);
+      if (data.clients[i].sock == new_sock) {
+        data.clients[i].username = strdupli(username);
         break;
       }
     }
-    pthread_mutex_unlock(data->data_mutex);
+    pthread_mutex_unlock(data.data_mutex);
 
     if (app_config.authEnabled == 1) {
       // Client authentication
@@ -145,7 +147,7 @@ void *threadTarget(void* sdata) {
         log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
         free(username);
         free(msg);
-        cleanup_client(data, new_sock);
+        cleanup_client(new_sock);
         break; 
       }
     }
@@ -155,7 +157,7 @@ void *threadTarget(void* sdata) {
       msg = getmsg(new_sock, NULL);
       if (msg != NULL) {
         if (msg[0] == '/') {
-          switch (parcmd(msg,data)) {
+          switch (parcmd(msg)) {
             case CMD_INVALID :
               if(msgsend(new_sock, (char* )"WARN  : Command not found", Status_WARNING)) {
                 log_msg(LOG_ERROR, "Error sending message to client");
@@ -190,14 +192,15 @@ void *threadTarget(void* sdata) {
             case QUIT:
               printf("Stopping server...\n");
               log_msg(LOG_INFO,"The client \"%s\" has stoped the server.",username);
-              quit(data);
+              quit();
               break; // Never reached but for good practice
+
             default :
               break;
           } // switch -> command output
         } else { // if (strcmp(...)) -> if it's a command
           printf("%s : %s\n", username, msg);
-          broadcast(data, msg, username); 
+          broadcast(msg, username); 
         } 
       } else {
         log_msg(LOG_ERROR, "Client broke connection");
@@ -205,7 +208,7 @@ void *threadTarget(void* sdata) {
         continue; // Will close the socket
       } // If msg = 0 then no msg was received
     } // while (running) -> while connection alive
-    cleanup_client(data, new_sock);
+    cleanup_client(new_sock);
     log_msg(LOG_INFO, "Client %s disconnected", username);
   } // while (true)
   return (void*) (intptr_t) exitcode;

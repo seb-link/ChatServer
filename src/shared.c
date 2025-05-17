@@ -37,21 +37,21 @@ char *remove_newlines(const char *str) {
 }
 
 /* make the server stop */
-void quit(t_data *data) {
+void quit(void) {
   log_close();
-  data->reqshut = true;
+  data.reqshut = true;
   for (int i = 0; i< MAXCLIENTS; i++) {
-    if (data->clients[i]->u == true) {
-      (void) msgsend(data->clients[i]->sock, "ERROR : The server is shutting down", Status_ERROR);
-      close(data->clients[i]->sock);
+    if (data.clients[i].u == true) {
+      (void) msgsend(data.clients[i].sock, "ERROR : The server is shutting down", Status_ERROR);
+      close(data.clients[i].sock);
     }
     // Not technically required but idc
-    data->clients[i]->u    = false; 
-    data->clients[i]->sock = 0;
+    data.clients[i].u    = false; 
+    data.clients[i].sock = 0;
   }
 
-  pthread_mutex_destroy(data->data_mutex);
-  pthread_mutex_destroy(data->server_mutex);
+  pthread_mutex_destroy(data.data_mutex);
+  pthread_mutex_destroy(data.server_mutex);
   exit(0);
 }
 

@@ -4,33 +4,33 @@
 #include "client.h"
 #include "log.h"
 
-int kick(char *username, t_data *data) {
+int kick(char *username) {
   char *msg = malloc(BUFFSIZE);
   
   if (!msg) {
     perror("malloc");
     log_msg(LOG_FATAL, "Cloud not allocate memory using malloc when calling the kick function");
-    quit(data);
+    quit();
   }
 
   sprintf(msg, "%s just got kicked !", username);
   
-  pthread_mutex_lock(data->data_mutex);
+  pthread_mutex_lock(data.data_mutex);
   for (int i = 0; i < MAXCLIENTS; i++) {
-    if (data->clients[i]->u && strcmp(data->clients[i]->username, username) == 0) {
-      msgsend(data->clients[i]->sock, "You were kicked", Status_ERROR_KICKED);
-      close(data->clients[i]->sock);
-      broadcast(data,msg,username);
+    if (data.clients[i].u && strcmp(data.clients[i].username, username) == 0) {
+      msgsend(data.clients[i].sock, "You were kicked", Status_ERROR_KICKED);
+      close(data.clients[i].sock);
+      broadcast(msg,username);
       return 0;
     }
   }
-  pthread_mutex_unlock(data->data_mutex);
+  pthread_mutex_unlock(data.data_mutex);
 
   return KICK_NOTFOUND;
 }
 
 /* Doesn't work at all*/
-int parcmd(char *originalCmd, t_data *data) {
+int parcmd(char *originalCmd) {
   char *current, *command, *cleanCmd = NULL;
 
   cleanCmd = remove_newlines( originalCmd );
