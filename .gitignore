@@ -1,6 +1,12 @@
+# Compilation files
 server
 obj/*
+
+# Program used files
 key.key
 log.log
-.vscode/*
 config.ini
+
+# Personal files
+.vscode/*
+core*
