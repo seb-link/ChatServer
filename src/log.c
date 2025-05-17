@@ -41,6 +41,8 @@ void log_msg(LogLevel level, const char* msg, ...) {
   char timest[20];
   time_t now;
 
+  pthread_mutex_lock(data.log_mutex);
+
   time(&now);
   strftime(timest, sizeof(timest), "%Y-%m-%d %H:%M:%S", localtime(&now));
 
@@ -51,6 +53,8 @@ void log_msg(LogLevel level, const char* msg, ...) {
   va_end(args);
 
   fflush(log_file);
+
+  pthread_mutex_unlock(data.log_mutex);
 
   return;
 }

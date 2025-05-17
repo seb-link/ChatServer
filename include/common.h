@@ -25,6 +25,7 @@ typedef struct {
 typedef struct s_data {
   pthread_mutex_t  *data_mutex;         /* Data mutex : used when accessing clients */
   pthread_mutex_t  *server_mutex;       /* Server mutex : used when getting connections */
+  pthread_mutex_t  *log_mutex;          /* Log mutex : used when logging */
   Client           clients[MAXCLIENTS]; /* clients : Array of all connected clients */
   bool             reqshut;
 } t_data;

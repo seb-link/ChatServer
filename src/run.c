@@ -14,7 +14,8 @@ t_data data;
 void run(const char *configFilePath) {  
   pthread_mutex_t data_mutex;
   pthread_mutex_t server_mutex;
-  
+  pthread_mutex_t log_mutex;
+
   pthread_t threads[MAXCLIENTS];
 
   Client clients[MAXCLIENTS] = { 0 };
@@ -25,9 +26,11 @@ void run(const char *configFilePath) {
 
   pthread_mutex_init(&data_mutex, NULL);
   pthread_mutex_init(&server_mutex, NULL);
+  pthread_mutex_init(&log_mutex, NULL);
   
   data.data_mutex = &data_mutex;
   data.server_mutex = &server_mutex;
+  data.log_mutex = &log_mutex;
   
   memcpy(data.clients, clients, sizeof(Client) * MAXCLIENTS);
 
