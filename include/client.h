@@ -22,7 +22,7 @@ void  broadcast      (char *msg, char *username);
 char  *getusername   (int sock);
 
 /* Client management functions */
-void  cleanup_client (int sock);
+void  removeClient   (int sock);
 
 /* Helper functions */
 

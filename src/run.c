@@ -128,7 +128,7 @@ void *threadTarget(void* sdata) {
     username = getusername(new_sock); // New client username
     if (!username) {
       free(msg);
-      cleanup_client(new_sock); 
+      removeClient(new_sock); 
       continue; 
     }
 
@@ -147,7 +147,7 @@ void *threadTarget(void* sdata) {
         log_msg(LOG_INFO, "[Auth] The client \"%s\" has failed authentication", username);
         free(username);
         free(msg);
-        cleanup_client(new_sock);
+        removeClient(new_sock);
         break; 
       }
     }
@@ -208,7 +208,7 @@ void *threadTarget(void* sdata) {
         continue; // Will close the socket
       } // If msg = 0 then no msg was received
     } // while (running) -> while connection alive
-    cleanup_client(new_sock);
+    removeClient(new_sock);
     log_msg(LOG_INFO, "Client %s disconnected", username);
   } // while (true)
   return (void*) (intptr_t) exitcode;

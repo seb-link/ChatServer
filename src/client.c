@@ -14,7 +14,6 @@ const size_t  banned_username_len =  3;
 const char   *banned_username[]   =  {"FATAL", "ERROR", "WARN"};
 
 /* Private/local function constructors */
-void  removeClient   (int sock);
 int   check_username (char *str);
 char  *remove_spaces (const char *str);
 /* Private/local function constructors */
@@ -110,6 +109,8 @@ void removeClient(int sock) {
     if (data.clients[i].sock == sock && data.clients[i].u == true) {
     
       data.clients[i].u = false;
+      data.clients[i].sock = 0;
+      close(sock);
       if (data.clients[i].username) {
         printf("Client %s Disconnected !\n", data.clients[i].username);
         free(data.clients[i].username);
@@ -144,7 +145,7 @@ void broadcast(char *msg, char *username) {
     if ( strcmp(data.clients[i].username, username) != 0 ) continue;
     if ( msgsend(data.clients[i].sock, smsg, Status_SUCCESS) == EXIT_SUCCESS ) continue;
     
-    cleanup_client(data.clients[i].sock);
+    removeClient(data.clients[i].sock);
   }
   
   free(smsg);
@@ -261,15 +262,5 @@ char *remove_spaces ( const char *str ) {
   result[strlen(str) + 1] = '\0';
 
   return result;
-}
-
-/* @brief The function to call when you need to remove a client.
- *
- * @param data Pointer to the server's data structure.
- * @param sock The socket descriptor of the client to remove.
- */
-void cleanup_client (int sock) {
-  close(sock);
-  removeClient(sock);
 }
 
